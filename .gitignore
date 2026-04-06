@@ -1,0 +1,54 @@
+node_modules/
+dist/
+cli
+cli-dev
+openclaw/
+
+# 构建产物
+*.exe
+cli.exe
+cli-dev.exe
+
+# 环境配置
+.env
+.env.local
+.env.*.local
+
+# IDE 配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 日志文件
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+bun-debug.log*
+
+# 临时文件
+*.tmp
+*.temp
+.cache/
+*.bun-build
+.*.bun-build
+
+# 本地工作记录
+deletion-log.md
+
+# Kiro 相关
+.kiro/
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 调试文件
+*.tsbuildinfo

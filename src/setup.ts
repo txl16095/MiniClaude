@@ -387,9 +387,8 @@ export async function setup(
     const { hasReleaseNotes } = await checkForReleaseNotes(
       getGlobalConfig().lastReleaseNotesSeen,
     )
-    if (hasReleaseNotes) {
-      await getRecentActivity()
-    }
+    // Always load recent activity for the logo, not just when there are release notes
+    await getRecentActivity()
   }
 
   // If permission mode is set to bypass, verify we're in a safe environment

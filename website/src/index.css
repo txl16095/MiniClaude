@@ -1,0 +1,52 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Archivo Black", sans-serif;
+  --font-mono: "IBM Plex Mono", monospace;
+  
+  --color-accent: #1ba784;
+  --color-dark: oklch(0.12 0 0);
+  --color-light: oklch(0.98 0 0);
+}
+
+@layer base {
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    background: var(--color-dark);
+    color: var(--color-light);
+    font-family: var(--font-mono);
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  ::selection {
+    background: var(--color-accent);
+    color: var(--color-dark);
+  }
+}
+
+@layer utilities {
+  .text-accent {
+    color: var(--color-accent);
+  }
+  
+  .bg-accent {
+    background: var(--color-accent);
+  }
+  
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+  
+  .font-mono {
+    font-family: var(--font-mono);
+  }
+}

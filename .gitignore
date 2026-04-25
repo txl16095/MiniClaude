@@ -13,6 +13,8 @@ cli-dev.exe
 .env
 .env.local
 .env.*.local
+.env.deepseek
+.env.minimax
 
 # IDE 配置
 .vscode/
@@ -20,6 +22,7 @@ cli-dev.exe
 *.swp
 *.swo
 *~
+.claude/
 
 # 操作系统文件
 .DS_Store
@@ -52,3 +55,11 @@ coverage/
 
 # 调试文件
 *.tsbuildinfo
+
+# 本地脚本和代理
+fastgpt_proxy.py
+start-fastgpt-proxy.bat
+mc.bat
+miniclaude.bat
+resume.bat
+run.bat

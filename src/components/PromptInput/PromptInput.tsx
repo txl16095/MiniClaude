@@ -105,7 +105,6 @@ import TextInput from '../TextInput.js';
 import { ThinkingToggle } from '../ThinkingToggle.js';
 import { BackgroundTasksDialog } from '../tasks/BackgroundTasksDialog.js';
 import { shouldHideTasksFooter } from '../tasks/taskStatusUtils.js';
-import { TeamsDialog } from '../teams/TeamsDialog.js';
 import VimTextInput from '../VimTextInput.js';
 import { getModeFromInput, getValueFromInput } from './inputModes.js';
 import { FOOTER_TEMPORARY_STATUS_TIMEOUT, Notifications } from './Notifications.js';
@@ -362,7 +361,7 @@ function PromptInput({
   // printable, inputFilter prepends a space before it. Any other input
   // (arrow, escape, backspace, paste, space) disarms without inserting.
   const pendingSpaceAfterPillRef = useRef(false);
-  const [showTeamsDialog, setShowTeamsDialog] = useState(false);
+  const showTeamsDialog = false; const setShowTeamsDialog = () => {};
   const [showBridgeDialog, setShowBridgeDialog] = useState(false);
   const [teammateFooterIndex, setTeammateFooterIndex] = useState(0);
   // -1 sentinel: tasks pill is selected but no specific agent row is selected yet.
@@ -2091,11 +2090,6 @@ function PromptInput({
   useSetPromptOverlayDialog(isFullscreenEnvEnabled() ? autoModeOptInDialog : null);
   if (showBashesDialog) {
     return <BackgroundTasksDialog onDone={() => setShowBashesDialog(false)} toolUseContext={getToolUseContext(messages, [], new AbortController(), mainLoopModel)} initialDetailTaskId={typeof showBashesDialog === 'string' ? showBashesDialog : undefined} />;
-  }
-  if (isAgentSwarmsEnabled() && showTeamsDialog) {
-    return <TeamsDialog initialTeams={cachedTeams} onDone={() => {
-      setShowTeamsDialog(false);
-    }} />;
   }
   if (feature('QUICK_SEARCH')) {
     const insertWithSpacing = (text: string) => {

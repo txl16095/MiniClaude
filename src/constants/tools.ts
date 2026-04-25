@@ -17,7 +17,7 @@ import { FILE_EDIT_TOOL_NAME } from '../tools/FileEditTool/constants.js'
 import { FILE_WRITE_TOOL_NAME } from '../tools/FileWriteTool/prompt.js'
 import { NOTEBOOK_EDIT_TOOL_NAME } from '../tools/NotebookEditTool/constants.js'
 import { SKILL_TOOL_NAME } from '../tools/SkillTool/constants.js'
-import { SEND_MESSAGE_TOOL_NAME } from '../tools/SendMessageTool/constants.js'
+
 import { TASK_CREATE_TOOL_NAME } from '../tools/TaskCreateTool/constants.js'
 import { TASK_GET_TOOL_NAME } from '../tools/TaskGetTool/constants.js'
 import { TASK_LIST_TOOL_NAME } from '../tools/TaskListTool/constants.js'
@@ -26,12 +26,15 @@ import { TOOL_SEARCH_TOOL_NAME } from '../tools/ToolSearchTool/prompt.js'
 import { SYNTHETIC_OUTPUT_TOOL_NAME } from '../tools/SyntheticOutputTool/SyntheticOutputTool.js'
 import { ENTER_WORKTREE_TOOL_NAME } from '../tools/EnterWorktreeTool/constants.js'
 import { EXIT_WORKTREE_TOOL_NAME } from '../tools/ExitWorktreeTool/constants.js'
-import { WORKFLOW_TOOL_NAME } from '../tools/WorkflowTool/constants.js'
+
 import {
   CRON_CREATE_TOOL_NAME,
   CRON_DELETE_TOOL_NAME,
   CRON_LIST_TOOL_NAME,
 } from '../tools/ScheduleCronTool/prompt.js'
+
+const SEND_MESSAGE_TOOL_NAME = 'send_message';
+const WORKFLOW_TOOL_NAME = 'Workflow';
 
 export const ALL_AGENT_DISALLOWED_TOOLS = new Set([
   TASK_OUTPUT_TOOL_NAME,

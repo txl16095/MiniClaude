@@ -65,7 +65,7 @@ import { useAssistantHistory } from '../hooks/useAssistantHistory.js';
 import type { SSHSession } from '../ssh/createSSHSession.js';
 import { SkillImprovementSurvey } from '../components/SkillImprovementSurvey.js';
 import { useSkillImprovementSurvey } from '../hooks/useSkillImprovementSurvey.js';
-import { useMoreRight } from '../moreright/useMoreRight.js';
+
 import { SpinnerWithVerb, BriefIdleStatus, type SpinnerMode } from '../components/Spinner.js';
 import { getSystemPrompt } from '../constants/prompts.js';
 import { buildEffectiveSystemPrompt } from '../utils/systemPrompt.js';
@@ -265,7 +265,6 @@ import { useTeammateLifecycleNotification } from 'src/hooks/notifs/useTeammateSh
 import { useFastModeNotification } from 'src/hooks/notifs/useFastModeNotification.js';
 import { AutoRunIssueNotification, shouldAutoRunIssue, getAutoRunIssueReasonText, getAutoRunCommand, type AutoRunIssueReason } from '../utils/autoRunIssue.js';
 import type { HookProgress } from '../types/hooks.js';
-import { TungstenLiveMonitor } from '../tools/TungstenTool/TungstenLiveMonitor.js';
 /* eslint-disable @typescript-eslint/no-require-imports */
 const WebBrowserPanelModule = feature('WEB_BROWSER_TOOL') ? require('../tools/WebBrowserTool/WebBrowserPanel.js') as typeof import('../tools/WebBrowserTool/WebBrowserPanel.js') : null;
 const UltraplanLaunchDialog: typeof import('../components/UltraplanLaunchDialog.js').UltraplanLaunchDialog = feature('ULTRAPLAN') ? require('../components/UltraplanLaunchDialog.js').UltraplanLaunchDialog : () => null;
@@ -1647,17 +1646,9 @@ export function REPL({
     const inProgressToolUses = lastAssistant.message.content.filter(b => b.type === 'tool_use' && inProgressToolUseIDs.has(b.id));
     return inProgressToolUses.length > 0 && inProgressToolUses.every(b => b.type === 'tool_use' && b.name === SLEEP_TOOL_NAME);
   }, [messages, inProgressToolUseIDs]);
-  const {
-    onBeforeQuery: mrOnBeforeQuery,
-    onTurnComplete: mrOnTurnComplete,
-    render: mrRender
-  } = useMoreRight({
-    enabled: moreRightEnabled,
-    setMessages,
-    inputValue,
-    setInputValue,
-    setToolJSX
-  });
+  const mrOnBeforeQuery = async () => true
+  const mrOnTurnComplete = async () => {}
+  const mrRender = () => null
   const showSpinner = (!toolJSX || toolJSX.showSpinner === true) && toolUseConfirmQueue.length === 0 && promptQueue.length === 0 && (
   // Show spinner during input processing, API call, while teammates are running,
   // or while pending task notifications are queued (prevents spinner bounce between consecutive notifications)
@@ -4551,7 +4542,6 @@ export function REPL({
               {toolJSX && !(toolJSX.isLocalJSXCommand && toolJSX.isImmediate) && !toolJsxCentered && <Box flexDirection="column" width="100%">
                     {toolJSX.jsx}
                   </Box>}
-              {"external" === 'ant' && <TungstenLiveMonitor />}
               {feature('WEB_BROWSER_TOOL') ? WebBrowserPanelModule && <WebBrowserPanelModule.WebBrowserPanel /> : null}
               <Box flexGrow={1} />
               {showSpinner && <SpinnerWithVerb mode={streamMode} spinnerTip={spinnerTip} responseLengthRef={responseLengthRef} apiMetricsRef={apiMetricsRef} overrideMessage={spinnerMessage} spinnerSuffix={stopHookSpinnerSuffix} verbose={verbose} loadingStartTimeRef={loadingStartTimeRef} totalPausedMsRef={totalPausedMsRef} pauseStartTimeRef={pauseStartTimeRef} overrideColor={spinnerColor} overrideShimmerColor={spinnerShimmerColor} hasActiveTools={inProgressToolUseIDs.size > 0} leaderIsIdle={!isLoading} />}

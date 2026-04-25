@@ -57,7 +57,6 @@ import { TodoWriteTool } from './tools/TodoWriteTool/TodoWriteTool.js'
 import { ExitPlanModeV2Tool } from './tools/ExitPlanModeTool/ExitPlanModeV2Tool.js'
 import { TestingPermissionTool } from './tools/testing/TestingPermissionTool.js'
 import { GrepTool } from './tools/GrepTool/GrepTool.js'
-import { TungstenTool } from './tools/TungstenTool/TungstenTool.js'
 import { AskUserQuestionTool } from './tools/AskUserQuestionTool/AskUserQuestionTool.js'
 import { LSPTool } from './tools/LSPTool/LSPTool.js'
 import { ListMcpResourcesTool } from './tools/ListMcpResourcesTool/ListMcpResourcesTool.js'
@@ -192,7 +191,6 @@ export function getAllBaseTools(): Tools {
     SkillTool,
     EnterPlanModeTool,
     ...(process.env.USER_TYPE === 'ant' ? [ConfigTool] : []),
-    ...(process.env.USER_TYPE === 'ant' ? [TungstenTool] : []),
     ...(SuggestBackgroundPRTool ? [SuggestBackgroundPRTool] : []),
     ...(WebBrowserTool ? [WebBrowserTool] : []),
     ...(isTodoV2Enabled()

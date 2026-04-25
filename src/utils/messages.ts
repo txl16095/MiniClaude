@@ -138,7 +138,7 @@ import {
   FileReadTool,
   type Output as FileReadToolOutput,
 } from '../tools/FileReadTool/FileReadTool.js'
-import { SEND_MESSAGE_TOOL_NAME } from '../tools/SendMessageTool/constants.js'
+
 import { TASK_CREATE_TOOL_NAME } from '../tools/TaskCreateTool/constants.js'
 import { TASK_OUTPUT_TOOL_NAME } from '../tools/TaskOutputTool/constants.js'
 import { TASK_UPDATE_TOOL_NAME } from '../tools/TaskUpdateTool/constants.js'
@@ -236,6 +236,7 @@ export function AUTO_REJECT_MESSAGE(toolName: string): string {
 export function DONT_ASK_REJECT_MESSAGE(toolName: string): string {
   return `Permission to use ${toolName} has been denied because Claude Code is running in don't ask mode. ${DENIAL_WORKAROUND_GUIDANCE}`
 }
+const SEND_MESSAGE_TOOL_NAME = 'send_message';
 export const NO_RESPONSE_REQUESTED = 'No response requested.'
 
 // Synthetic tool_result content inserted by ensureToolResultPairing when a

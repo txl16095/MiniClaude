@@ -14,7 +14,7 @@ import type { AppState } from '../../../state/AppStateStore.js';
 import { AGENT_TOOL_NAME } from '../../../tools/AgentTool/constants.js';
 import { EXIT_PLAN_MODE_V2_TOOL_NAME } from '../../../tools/ExitPlanModeTool/constants.js';
 import type { AllowedPrompt } from '../../../tools/ExitPlanModeTool/ExitPlanModeV2Tool.js';
-import { TEAM_CREATE_TOOL_NAME } from '../../../tools/TeamCreateTool/constants.js';
+const TEAM_CREATE_TOOL_NAME = 'team_create';
 import { isAgentSwarmsEnabled } from '../../../utils/agentSwarmsEnabled.js';
 import { calculateContextPercentages, getContextWindowForModel } from '../../../utils/context.js';
 import { getExternalEditor } from '../../../utils/editor.js';

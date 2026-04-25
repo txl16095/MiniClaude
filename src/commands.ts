@@ -1,6 +1,5 @@
 // biome-ignore-all assist/source/organizeImports: ANT-ONLY import markers must not be reordered
 import addDir from './commands/add-dir/index.js'
-import btw from './commands/btw/index.js'
 import clear from './commands/clear/index.js'
 import color from './commands/color/index.js'
 import copy from './commands/copy/index.js'
@@ -17,11 +16,9 @@ import init from './commands/init.js'
 import keybindings from './commands/keybindings/index.js'
 import mcp from './commands/mcp/index.js'
 import pr_comments from './commands/pr_comments/index.js'
-import releaseNotes from './commands/release-notes/index.js'
 import rename from './commands/rename/index.js'
 import resume from './commands/resume/index.js'
 import review, { ultrareview } from './commands/review.js'
-import session from './commands/session/index.js'
 import skills from './commands/skills/index.js'
 import status from './commands/status/index.js'
 import tasks from './commands/tasks/index.js'
@@ -72,13 +69,9 @@ const forkCmd = feature('FORK_SUBAGENT')
     ).default
   : null
 /* eslint-enable @typescript-eslint/no-require-imports */
-import thinkback from './commands/thinkback/index.js'
-import thinkbackPlay from './commands/thinkback-play/index.js'
 import permissions from './commands/permissions/index.js'
 import plan from './commands/plan/index.js'
 import fast from './commands/fast/index.js'
-import passes from './commands/passes/index.js'
-import privacySettings from './commands/privacy-settings/index.js'
 import hooks from './commands/hooks/index.js'
 import files from './commands/files/index.js'
 import branch from './commands/branch/index.js'
@@ -87,7 +80,6 @@ import plugin from './commands/plugin/index.js'
 import reloadPlugins from './commands/reload-plugins/index.js'
 import rewind from './commands/rewind/index.js'
 import sandboxToggle from './commands/sandbox-toggle/index.js'
-import chrome from './commands/chrome/index.js'
 import advisor from './commands/advisor.js'
 import { logError } from './utils/log.js'
 import { toError } from './utils/errors.js'
@@ -163,8 +155,6 @@ const COMMANDS = memoize((): Command[] => [
   advisor,
   agents,
   branch,
-  btw,
-  chrome,
   clear,
   color,
   compact,
@@ -189,11 +179,9 @@ const COMMANDS = memoize((): Command[] => [
   outputStyle,
   plugin,
   pr_comments,
-  releaseNotes,
   reloadPlugins,
   rename,
   resume,
-  session,
   skills,
   stats,
   status,
@@ -212,15 +200,11 @@ const COMMANDS = memoize((): Command[] => [
   ...(forkCmd ? [forkCmd] : []),
   ...(bridge ? [bridge] : []),
   ...(remoteControlServerCommand ? [remoteControlServerCommand] : []),
-  thinkback,
-  thinkbackPlay,
   permissions,
   plan,
-  privacySettings,
   hooks,
   exportCommand,
   sandboxToggle,
-  passes,
   tasks,
   ...(workflowsCmd ? [workflowsCmd] : []),
   ...(torch ? [torch] : []),
@@ -499,7 +483,6 @@ export const getSlashCommandToolSkills = memoize(
  * 2. Preserving local-only commands in REPL's handleRemoteInit after CCR filters
  */
 export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
-  session, // Shows QR code / URL for remote session
   exit, // Exit the TUI
   clear, // Clear screen
   help, // Show help
@@ -508,7 +491,6 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   vim, // Toggle vim mode
   cost, // Show session cost (local cost tracking)
   copy, // Copy last message
-  btw, // Quick note
   plan, // Plan mode toggle
   keybindings, // Keybinding management
   statusline, // Status line toggle
@@ -531,7 +513,6 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
     compact, // Shrink context — useful mid-session from a phone
     clear, // Wipe transcript
     cost, // Show session cost
-    releaseNotes, // Show changelog
     files, // List tracked files
   ].filter((c): c is Command => c !== null),
 )

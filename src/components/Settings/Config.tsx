@@ -927,7 +927,7 @@ export function Config({
     }];
   })() : []),
   // Remote at startup toggle — gated on build flag + GrowthBook + policy
-  ...(feature('BRIDGE_MODE') && isBridgeEnabled() ? [{
+  ...(false ? [{
     id: 'remoteControlAtStartup',
     label: 'Enable Remote Control for all sessions',
     value: globalConfig.remoteControlAtStartup === undefined ? 'default' : String(globalConfig.remoteControlAtStartup),

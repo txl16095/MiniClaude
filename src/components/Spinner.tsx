@@ -3,7 +3,10 @@ import { c as _c } from "react/compiler-runtime";
 import { Box, Text } from '../ink.js';
 import * as React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { computeGlimmerIndex, computeShimmerSegments, SHIMMER_INTERVAL_MS } from '../bridge/bridgeStatusUtil.js';
+// Inlined from bridge/bridgeStatusUtil.ts (bridge removed)
+const SHIMMER_INTERVAL_MS = 200;
+const computeGlimmerIndex = (frame: number, _width: number): number => -100;
+const computeShimmerSegments = (_text: string, _glimmerIndex: number): [] => [];
 import { feature } from 'bun:bundle';
 import { getKairosActive, getUserMsgOptIn } from '../bootstrap/state.js';
 import { getFeatureValue_CACHED_MAY_BE_STALE } from '../services/analytics/growthbook.js';

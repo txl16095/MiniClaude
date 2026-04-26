@@ -280,7 +280,7 @@ function ExtraUsageSection(t0) {
     return false;
   }
   if (!extraUsage.is_enabled) {
-    if (extraUsageCommand.isEnabled()) {
+    if (false) {
       let t1;
       if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
         t1 = <Box flexDirection="column"><Text bold={true}>{EXTRA_USAGE_SECTION_TITLE}</Text><Text dimColor={true}>Extra usage not enabled · /extra-usage to enable</Text></Box>;

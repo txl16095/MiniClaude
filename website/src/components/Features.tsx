@@ -9,28 +9,28 @@ export default function Features() {
 
   const features = [
     {
-      title: t('features.stripped.title'),
-      metric: t('features.stripped.metric'),
-      unit: t('features.stripped.unit'),
-      description: t('features.stripped.desc')
+      title: t('features.ai.title'),
+      metric: t('features.ai.metric'),
+      unit: t('features.ai.unit'),
+      description: t('features.ai.desc')
     },
     {
-      title: t('features.local.title'),
-      metric: t('features.local.metric'),
-      unit: t('features.local.unit'),
-      description: t('features.local.desc')
+      title: t('features.code.title'),
+      metric: t('features.code.metric'),
+      unit: t('features.code.unit'),
+      description: t('features.code.desc')
     },
     {
-      title: t('features.fast.title'),
-      metric: t('features.fast.metric'),
-      unit: t('features.fast.unit'),
-      description: t('features.fast.desc')
+      title: t('features.files.title'),
+      metric: t('features.files.metric'),
+      unit: t('features.files.unit'),
+      description: t('features.files.desc')
     },
     {
-      title: t('features.pure.title'),
-      metric: t('features.pure.metric'),
-      unit: t('features.pure.unit'),
-      description: t('features.pure.desc')
+      title: t('features.dev.title'),
+      metric: t('features.dev.metric'),
+      unit: t('features.dev.unit'),
+      description: t('features.dev.desc')
     }
   ]
 

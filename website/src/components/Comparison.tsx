@@ -73,7 +73,6 @@ export default function Comparison() {
           ))}
         </motion.div>
 
-        {/* 绮剧畝缁熻 */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}

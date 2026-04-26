@@ -1,350 +1,539 @@
-<p align="center">
-  <img src="assets/screenshot.png" alt="MiniClaude" width="720" />
-</p>
+<div align="center">
 
-<h1 align="center">MiniClaude</h1>
+```
+███╗   ███╗██╗███╗   ██╗██╗     ██████╗██╗      █████╗ ██╗   ██╗██████╗ ███████╗
+████╗ ████║██║████╗  ██║██║    ██╔════╝██║     ██╔══██╗██║   ██║██╔══██╗██╔════╝
+██╔████╔██║██║██╔██╗ ██║██║    ██║     ██║     ███████║██║   ██║██║  ██║█████╗  
+██║╚██╔╝██║██║██║╚██╗██║██║    ██║     ██║     ██╔══██║██║   ██║██║  ██║██╔══╝  
+██║ ╚═╝ ██║██║██║ ╚████║██║    ╚██████╗███████╗██║  ██║╚██████╔╝██████╔╝███████╗
+╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝╚═╝     ╚═════╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚══════╝
+```
 
-<p align="center">
-  <strong>轻量级本地 AI 编程助手</strong><br>
-  基于 Claude Code 精简改造，移除云服务依赖，专注本地开发体验<br>
-  一个二进制文件，零云端回调
-</p>
+### 轻量级本地 AI 编程助手
+
+**一个二进制 · 零云端 · 纯本地**
+
+[![Bun](https://img.shields.io/badge/Bun-1.3.11+-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-MIT-1ba784?style=for-the-badge)](LICENSE)
+
+[官网](https://txl16095.github.io/MiniClaude/) • [文档](#使用指南) • [快速开始](#快速开始) • [社区](https://github.com/txl16095/MiniClaude/discussions)
+
+**语言 / Languages:** **中文** | [English](README_EN.md)
+
+</div>
 
 ---
 
-## 快速安装
+## ▸ 为什么选择 MiniClaude？
 
-### Windows
+<table>
+<tr>
+<td width="50%">
+
+### **[精简]** 极致精简
+```
+原版 Claude Code
+    ↓ 删除 44,700 行
+MiniClaude
+```
+移除所有云服务代码  
+保留 100% 核心功能
+
+</td>
+<td width="50%">
+
+### **[安全]** 完全本地
+```
+你的代码 → MiniClaude → AI
+         ↑____________↓
+         本地处理，零上传
+```
+无遥测 · 无追踪 · 无同步
+
+</td>
+</tr>
+<tr>
+<td width="50%">
+
+### **[快速]** 开箱即用
+```bash
+$ bun run build
+$ ./cli
+> 你好！
+```
+一个命令，立即开始
+
+</td>
+<td width="50%">
+
+### **[完整]** 功能完整
+```
+✓ AI 对话      ✓ 代码生成
+✓ 文件操作     ✓ Git 集成
+✓ MCP 协议     ✓ 插件系统
+```
+开发所需，应有尽有
+
+</td>
+</tr>
+</table>
+
+---
+
+## ▸ 快速开始
+
+### 一键安装
 
 ```bash
-# 克隆仓库
-git clone https://github.com/txl16095/MiniClaude.git
-cd MiniClaude
+# [1] 克隆项目
+git clone https://github.com/txl16095/MiniClaude.git && cd MiniClaude
 
-# 配置环境变量
-copy .env.example .env
-# 编辑 .env 文件，填入你的 API 密钥
+# [2] 配置密钥
+cp .env.example .env  # 编辑填入 ANTHROPIC_API_KEY
 
-# 安装 Bun（如果尚未安装）
-# 访问 https://bun.sh 下载 Windows 安装程序
-
-# 构建项目
-bun run build
-
-# 运行
-start.bat
+# [3] 构建运行
+bun run build && ./cli
 ```
 
-### Linux / macOS
+<details>
+<summary><b>▸ 详细安装步骤</b></summary>
+
+#### 安装 Bun
 
 ```bash
-# 克隆仓库
-git clone https://github.com/txl16095/MiniClaude.git
-cd MiniClaude
+# macOS / Linux
+curl -fsSL https://bun.sh/install | bash
 
-# 配置环境变量
+# Windows
+# 访问 https://bun.sh 下载安装程序
+```
+
+#### 配置环境
+
+```bash
+# 复制配置文件
 cp .env.example .env
-# 编辑 .env 文件，填入你的 API 密钥
 
-# 安装 Bun（如果尚未安装）
-curl -fsSL https://bun.sh/install | bash
-
-# 构建项目
-bun run build
-
-# 运行
-./cli
+# 编辑 .env，添加你的 API 密钥
+ANTHROPIC_API_KEY=sk-ant-xxxxx
 ```
 
----
-
-## 目录
-
-- [项目简介](#项目简介)
-- [精简化改动](#精简化改动)
-- [系统要求](#系统要求)
-- [构建](#构建)
-- [使用方法](#使用方法)
-- [项目结构](#项目结构)
-- [技术栈](#技术栈)
-- [贡献](#贡献)
-- [许可证](#许可证)
-
----
-
-## 项目简介
-
-MiniClaude 是基于 [free-code](https://github.com/paoloanzn/free-code) 进行深度精简改造的轻量级 AI 编程助手。
-
-free-code 是从 Anthropic 的 [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI 源代码重建的版本。原始源代码于 2026 年 3 月 31 日通过 npm 发行版的 source map 意外暴露而被公开。
-
-本项目在 free-code 基础上删除了约 44,700 行云服务相关代码，专注于打造一个纯粹的本地 CLI 工具。
-
----
-
-## 精简化改动
-
-### 已删除的功能
-
-| 类别 | 功能模块 | 代码行数 | 状态 |
-|------|---------|---------|------|
-| **云服务集成** | OAuth 认证系统 | ~2,062 行 | ✅ 已删除 |
-| | 遥测和分析系统 | ~2,882 行 | ✅ 已删除 |
-| | 设置同步和团队内存同步 | ~1,619 行 | ✅ 已删除 |
-| | 策略限制检查 | ~610 行 | ✅ 已删除 |
-| **远程和协作** | 远程控制功能 | ~1,619 行 | ✅ 已删除 |
-| | 协调器模式 | ~490 行 | ✅ 已删除 |
-| | 团队和协作功能 | ~9,665 行 | ✅ 已删除 |
-| | 桥接模式 | ~12,613 行 | ✅ 已删除 |
-| **实验性功能** | 语音模式 | ~500 行 | ✅ 已删除 |
-| | 桌面端集成 | ~300 行 | ✅ 已删除 |
-| | 移动端集成 | ~200 行 | ✅ 已删除 |
-| | Stickers 装饰性 UI | ~150 行 | ✅ 已删除 |
-| | Buddy/Companion 宠物精灵 | ~800 行 | ✅ 已删除 |
-| **复杂集成** | Slack 集成 | ~30 行 | ✅ 已删除 |
-| | Teleport 功能 | ~2,071 行 | ✅ 已删除 |
-| | 自动更新系统 | ~1,069 行 | ✅ 已删除 |
-| | Chrome 扩展订阅检查 | - | ✅ 移除限制（保留功能） |
-| **命令清理** | 授权命令 | 5 个命令 | ✅ 已删除 |
-| | Feature-flagged 命令（ultraplan/torch/fork 等） | 8 个命令 | ✅ 已删除 |
-| | 内部命令（tag/agents-platform） | 2 个命令 | ✅ 已删除 |
-| | login/logout 空桩 | 2 个命令 | ✅ 已删除 |
-| | 内部命令 | 22 个命令 | ✅ 已删除 |
-
-### 保留的核心功能
-
-| 功能模块 | 说明 |
-|---------|------|
-| AI 对话和代码生成 | 核心 AI 交互功能 |
-| 文件读写操作 | 本地文件系统操作 |
-| Shell 命令执行 | 执行系统命令 |
-| Git 集成 | 版本控制集成 |
-| MCP 支持 | Model Context Protocol |
-| 插件系统 | 扩展功能支持 |
-| Git 分支管理 | 分支操作 |
-| 技能系统 | 可复用的 AI 技能 |
-| Chrome 扩展集成 | 本地 MCP 通信 |
-| GitHub 集成 | GitHub API 集成 |
-| 权限系统 | 核心安全功能 |
-
-### 精简化统计
-
-| 指标 | 数量 |
-|------|------|
-| 删除文件 | ~200 个 |
-| 创建占位文件 | ~74 个 |
-| 净减少代码 | ~44,700 行 |
-| 删除命令 | 39 个 |
-| 删除依赖 | 20 个 |
-
----
-
-## 系统要求
-
-- **运行时**：[Bun](https://bun.sh) >= 1.3.11
-- **操作系统**：Windows、macOS 或 Linux
-- **认证**：所选模型提供商的 API key
-
-### 安装 Bun
-
-**Windows**：访问 https://bun.sh 下载安装程序
-
-**Linux / macOS**：
-```bash
-curl -fsSL https://bun.sh/install | bash
-```
-
-### 配置环境变量
-
-1. 复制 `.env.example` 为 `.env`：
-   ```bash
-   # Windows
-   copy .env.example .env
-   
-   # Linux/macOS
-   cp .env.example .env
-   ```
-
-2. 编辑 `.env` 文件，填入你的 API 密钥：
-   ```bash
-   ANTHROPIC_AUTH_TOKEN=your-api-key-here
-   ```
-
-3. （可选）配置其他设置，如自定义 API 端点、模型等
-
----
-
-## 构建
-
-### 基本构建
+#### 构建项目
 
 ```bash
-# 克隆仓库
-git clone https://github.com/txl16095/MiniClaude.git
-cd MiniClaude
-
-# 构建项目
-bun run build
-
-# 运行
-./cli  # Linux/macOS
-# 或
-start.bat  # Windows
+bun install    # 安装依赖
+bun run build  # 构建
+./cli          # 运行
 ```
 
-### 构建变体
-
-| 命令 | 输出 | 说明 |
-|---|---|---|
-| `bun run build` | `./cli` | 生产版本 |
-| `bun run build:dev` | `./cli-dev` | 开发版本 |
-| `bun run compile` | `./dist/cli` | 备用输出路径 |
+</details>
 
 ---
 
-## 使用方法
+## ▸ 核心功能
 
-### 基本用法
+<div align="center">
 
-```bash
-# 交互式 REPL（默认）
-./cli
+### AI 能力
 
-# 单次命令模式
-./cli -p "这个目录下有哪些文件？"
+</div>
 
-# 指定模型
-./cli --model claude-sonnet-4-6
+| 功能 | 说明 | 示例 |
+|:---:|:---|:---|
+| **对话** | 智能对话 | 自然语言交互，理解上下文 |
+| **生成** | 代码生成 | 创建、修改、重构代码 |
+| **理解** | 项目理解 | 自动分析项目结构 |
+| **模型** | 多模型支持 | Sonnet / Opus / Haiku |
 
-# 从源代码运行（启动较慢）
-bun run dev
+<div align="center">
+
+### 文件工具
+
+</div>
+
 ```
+┌─────────────┬──────────────────────────────────────┐
+│ FileRead    │ 读取文件，支持语法高亮               │
+│ FileWrite   │ 创建/覆盖文件                        │
+│ FileEdit    │ 智能编辑，精确修改指定行             │
+│ Glob        │ 文件搜索，支持通配符                 │
+│ Grep        │ 内容搜索，基于 ripgrep               │
+└─────────────┴──────────────────────────────────────┘
+```
+
+<div align="center">
+
+### 开发集成
+
+</div>
+
+<table>
+<tr>
+<td align="center" width="25%">
+
+**Shell**  
+Bash / PowerShell  
+命令执行
+
+</td>
+<td align="center" width="25%">
+
+**Git**  
+版本控制  
+分支管理
+
+</td>
+<td align="center" width="25%">
+
+**LSP**  
+语言服务器  
+代码补全
+
+</td>
+<td align="center" width="25%">
+
+**Tasks**  
+后台任务  
+并行执行
+
+</td>
+</tr>
+</table>
+
+<div align="center">
+
+### 扩展生态
+
+</div>
+
+```mermaid
+graph LR
+    A[MiniClaude] --> B[MCP 服务器]
+    A --> C[插件系统]
+    A --> D[技能系统]
+    A --> E[Chrome 扩展]
+    
+    B --> B1[数据库]
+    B --> B2[API]
+    B --> B3[工具]
+    
+    C --> C1[自定义命令]
+    C --> C2[工具扩展]
+    
+    D --> D1[可复用技能]
+    D --> D2[提示模板]
+    
+    E --> E1[网页交互]
+    E --> E2[内容提取]
+```
+
+---
+
+## ▸ 与 Claude Code 的差异
+
+<div align="center">
+
+### 精简统计
+
+</div>
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                          ┃
+┃   原版 Claude Code                                                       ┃
+┃   ████████████████████████████████████████████████  100%                ┃
+┃                                                                          ┃
+┃   MiniClaude (删除 44,700 行)                                            ┃
+┃   ████████████████████████                          55%                 ┃
+┃                                                                          ┃
+┃   ✓ 保留 100% 核心开发功能                                               ┃
+┃   ✗ 移除 100% 云服务依赖                                                 ┃
+┃                                                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+<details>
+<summary><b>▾ 已移除功能（点击展开）</b></summary>
+
+### [云服务] 云服务集成 (~7,173 行)
+
+| 模块 | 代码量 | 说明 |
+|:---:|---:|:---|
+| OAuth 认证 | 2,062 行 | 云端账号登录 |
+| 遥测分析 | 2,882 行 | 使用数据上报 |
+| 设置同步 | 1,619 行 | 跨设备配置同步 |
+| 策略限制 | 610 行 | 企业策略检查 |
+
+### [协作] 协作功能 (~24,387 行)
+
+| 模块 | 代码量 | 说明 |
+|:---:|---:|:---|
+| 团队协作 | 9,665 行 | 多人协作编程 |
+| 桥接模式 | 12,613 行 | 远程连接支持 |
+| 远程控制 | 1,619 行 | 远程会话管理 |
+| 协调器 | 490 行 | 多 Agent 协调 |
+
+### [实验] 实验功能 (~1,950 行)
+
+| 模块 | 代码量 | 说明 |
+|:---:|---:|:---|
+| 语音模式 | 500 行 | 语音交互 |
+| 桌面集成 | 300 行 | 桌面应用 |
+| 移动端 | 200 行 | 移动设备 |
+| Buddy 精灵 | 800 行 | 宠物助手 |
+| Stickers | 150 行 | 装饰贴纸 |
+
+### [集成] 复杂集成 (~3,170 行)
+
+| 模块 | 代码量 | 说明 |
+|:---:|---:|:---|
+| Teleport | 2,071 行 | 项目传送 |
+| 自动更新 | 1,069 行 | 软件更新 |
+| Slack | 30 行 | Slack 通知 |
+
+### [清理] 命令清理 (39 个)
+
+```
+授权命令 (5)    实验命令 (8)    内部命令 (22)    空桩命令 (4)
+   login          ultraplan         tag            未实现
+   logout         torch             agents         占位符
+   auth           fork              platform       ...
+   ...            ...               ...
+```
+
+</details>
+
+<details>
+<summary><b>▾ 保留功能（点击展开）</b></summary>
+
+### 核心开发工具
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  ✓ AI 对话和代码生成      ✓ 文件读写编辑                   │
+│  ✓ Shell 命令执行         ✓ Git 版本控制                   │
+│  ✓ MCP 协议支持           ✓ LSP 语言服务                   │
+│  ✓ 插件系统               ✓ 技能系统                       │
+│  ✓ 任务管理               ✓ 权限控制                       │
+│  ✓ Chrome 扩展            ✓ GitHub 集成                    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+</details>
+
+---
+
+## ▸ 使用指南
 
 ### 常用命令
 
-- `/help` - 显示帮助信息
-- `/clear` - 清空对话历史
-- `/config` - 配置设置
-- `/model` - 切换模型
-- `/chrome` - Chrome 扩展集成
-- `/mcp` - MCP 服务器管理
-- `/skills` - 技能管理
-- `/tasks` - 任务管理
+<table>
+<tr>
+<td width="50%">
+
+#### [基础] 基础命令
+
+```bash
+/help              # 帮助信息
+/clear             # 清空对话
+/exit              # 退出程序
+```
+
+#### [配置] 配置命令
+
+```bash
+/config            # 打开配置
+/model             # 切换模型
+/theme             # 切换主题
+```
+
+</td>
+<td width="50%">
+
+#### [文件] 文件命令
+
+```bash
+/files             # 查看上下文
+/add-dir <path>    # 添加目录
+```
+
+#### [工具] 工具命令
+
+```bash
+/mcp               # MCP 服务器
+/skills            # 技能管理
+/tasks             # 任务管理
+/chrome            # Chrome 扩展
+```
+
+</td>
+</tr>
+</table>
 
 ### 环境变量
 
-| 变量 | 用途 |
-|---|---|
-| `ANTHROPIC_API_KEY` | Anthropic API 密钥 |
-| `ANTHROPIC_MODEL` | 覆盖默认模型 |
-| `ANTHROPIC_BASE_URL` | 自定义 API 端点 |
+```bash
+# API 配置
+ANTHROPIC_API_KEY=sk-ant-xxx        # ← 必需
+ANTHROPIC_BASE_URL=https://...      # 自定义端点
+ANTHROPIC_MODEL=claude-sonnet-4-6   # 默认模型
 
----
+# 代理配置
+HTTP_PROXY=http://proxy:port
+HTTPS_PROXY=https://proxy:port
 
-## 项目结构
+# 调试选项
+DEBUG=*                             # 启用调试
+```
+
+### 配置文件
 
 ```
-scripts/
-  build.ts                # 构建脚本和功能标志系统
-
-src/
-  entrypoints/cli.tsx     # CLI 入口点
-  commands.ts             # 命令注册表（斜杠命令）
-  tools.ts                # 工具注册表（AI 工具）
-  QueryEngine.ts          # LLM 查询引擎
-  screens/REPL.tsx        # 主交互界面（Ink/React）
-
-  commands/               # 斜杠命令实现
-  tools/                  # AI 工具实现（Bash、Read、Edit 等）
-  components/             # Ink/React 终端 UI 组件
-  hooks/                  # React hooks
-  services/               # API 客户端、MCP、OAuth
-    api/                  # API 客户端
-  state/                  # 应用状态存储
-  utils/                  # 工具函数
-    model/                # 模型配置、提供商、验证
-  skills/                 # 技能系统
-  plugins/                # 插件系统
-  tasks/                  # 后台任务管理
+~/.config/miniclaude/
+├── config.json          # 主配置
+├── settings.json        # 用户设置
+├── mcp.json            # MCP 服务器
+├── skills/             # 自定义技能
+└── plugins/            # 自定义插件
 ```
 
 ---
 
-## 技术栈
+## ▸ 项目结构
 
-| 技术 | 说明 |
-|---|---|
-| **运行时** | [Bun](https://bun.sh) |
-| **语言** | TypeScript |
-| **终端 UI** | React + [Ink](https://github.com/vadimdemedes/ink) |
-| **CLI 解析** | [Commander.js](https://github.com/tj/commander.js) |
-| **模式验证** | Zod v4 |
-| **代码搜索** | ripgrep（内置）|
-| **协议** | MCP、LSP |
-| **API** | Anthropic Messages、AWS Bedrock、Google Vertex AI |
-
----
-
-## 贡献
-
-欢迎贡献代码！
-
-1. Fork 本仓库
-2. 基于 `dev` 分支创建功能分支 (`git checkout -b feat/my-feature`)
-3. 提交更改 (`git commit -m 'feat: add something'`)
-4. 推送到你的 Fork (`git push origin feat/my-feature`)
-5. 创建 Pull Request 到 `dev` 分支
-
-**注意**：请将 PR 提交到 `dev` 分支，而不是 `main` 分支。
-
----
-
-## 免责声明
-
-**重要提示：请仔细阅读以下免责声明**
-
-1. **版权归属**：本项目基于的原始 Claude Code 源代码版权归 Anthropic PBC 所有。
-
-2. **非官方项目**：本项目（MiniClaude）不是 Anthropic 的官方项目，未经 Anthropic 授权或认可。
-
-3. **源代码来源**：原始源代码是通过 Anthropic 的 npm 发行版中的 source map 意外暴露而获得的，并非 Anthropic 主动开源。
-
-4. **使用风险**：
-   - 使用本项目需自行承担风险
-   - 本项目可能违反 Anthropic 的服务条款
-   - Anthropic 可能随时要求停止使用或分发
-   - 不保证功能的稳定性和安全性
-
-5. **法律责任**：
-   - 使用者应自行了解并遵守所在地区的法律法规
-   - 项目维护者不对使用本项目造成的任何损失负责
-   - 如有法律纠纷，责任由使用者自行承担
-
-6. **商业使用**：不建议将本项目用于商业用途，可能存在法律风险。
-
-7. **随时下架**：如果 Anthropic 提出要求，本项目将立即停止维护并删除所有相关代码。
-
-**如果您不同意以上条款，请勿使用本项目。**
+```
+MiniClaude/
+│
+├── src/
+│   ├── entrypoints/     # CLI 入口
+│   ├── commands/        # 斜杠命令
+│   ├── tools/           # AI 工具
+│   ├── components/      # UI 组件
+│   ├── services/        # 服务层
+│   │   ├── api/         # API 客户端
+│   │   ├── mcp/         # MCP 协议
+│   │   └── lsp/         # LSP 协议
+│   ├── utils/           # 工具函数
+│   ├── skills/          # 技能系统
+│   ├── plugins/         # 插件系统
+│   └── state/           # 状态管理
+│
+├── scripts/
+│   └── build.ts         # 构建脚本
+│
+├── website/             # 官网源码
+│
+└── README.md
+```
 
 ---
 
-## 许可证
+## ▸ 技术栈
 
-原始 Claude Code 源代码的版权归 Anthropic PBC 所有。本项目的存在是因为源代码通过 npm 发行版意外公开暴露。
+<div align="center">
 
-本项目基于 free-code 改造，仅供学习和研究使用。使用时请自行斟酌法律风险。
+| 技术 | 版本 | 用途 |
+|:---:|:---:|:---|
+| ![Bun](https://img.shields.io/badge/Bun-000000?style=flat&logo=bun&logoColor=white) | 1.3.11+ | 运行时和构建 |
+| ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white) | 6.0+ | 开发语言 |
+| ![React](https://img.shields.io/badge/React-61DAFB?style=flat&logo=react&logoColor=black) | 19.x | UI 框架 |
+| ![Zod](https://img.shields.io/badge/Zod-3E67B1?style=flat&logo=zod&logoColor=white) | 4.x | 模式验证 |
+
+</div>
 
 ---
 
-## 更新日志
+## ▸ 贡献
 
-本项目基于 free-code 进行了大量精简改造，删除了约 44,700 行云服务相关代码。详细的改动记录请查看 Git 提交历史。
+<div align="center">
+
+**欢迎贡献！让 MiniClaude 变得更好**
+
+</div>
+
+```bash
+# 1. Fork 项目
+# 2. 创建分支
+git checkout -b feat/amazing-feature
+
+# 3. 提交更改
+git commit -m 'feat: add amazing feature'
+
+# 4. 推送分支
+git push origin feat/amazing-feature
+
+# 5. 提交 PR 到 dev 分支
+```
+
+### 开发环境
+
+```bash
+bun install       # 安装依赖
+bun run dev       # 开发模式
+bun run build     # 构建
+bun run build:dev # 开发构建
+```
 
 ---
 
-## 相关链接
+## ▸ 许可证
 
-- [free-code 项目](https://github.com/paoloanzn/free-code) - 上游项目
-- [Claude Code 官方文档](https://docs.anthropic.com/en/docs/claude-code)
-- [Anthropic 官网](https://www.anthropic.com)
-- [Bun 官网](https://bun.sh)
+<div align="center">
+
+**MIT License** © 2026 [txl16095](https://github.com/txl16095)
+
+基于 [free-code](https://github.com/paoloanzn/free-code) 改造  
+原始代码版权归 [Anthropic PBC](https://www.anthropic.com) 所有
+
+</div>
+
+---
+
+## ▸ 免责声明
+
+<div align="center">
+
+```
+┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃                                                                          ┃
+┃  [!] 本项目不是 Anthropic 的官方项目，未经授权或认可                     ┃
+┃                                                                          ┃
+┃  [!] 使用本项目需自行承担风险，仅供学习和研究使用                         ┃
+┃                                                                          ┃
+┃  [!] 不建议用于商业用途，可能存在法律风险                                 ┃
+┃                                                                          ┃
+┃  [!] 如 Anthropic 要求，将立即停止维护                                   ┃
+┃                                                                          ┃
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
+```
+
+**如果您不同意以上条款，请勿使用本项目**
+
+</div>
+
+---
+
+## ▸ 相关链接
+
+<div align="center">
+
+[![Website](https://img.shields.io/badge/官网-1ba784?style=for-the-badge)](https://txl16095.github.io/MiniClaude/)
+[![free-code](https://img.shields.io/badge/free--code-gray?style=for-the-badge)](https://github.com/paoloanzn/free-code)
+[![Claude Code](https://img.shields.io/badge/Claude_Code-orange?style=for-the-badge)](https://docs.anthropic.com/en/docs/claude-code)
+[![Anthropic](https://img.shields.io/badge/Anthropic-black?style=for-the-badge)](https://www.anthropic.com)
+[![Bun](https://img.shields.io/badge/Bun-000000?style=for-the-badge&logo=bun&logoColor=white)](https://bun.sh)
+
+</div>
+
+---
+
+<div align="center">
+
+**Made by [txl16095](https://github.com/txl16095)**
+
+如果这个项目对你有帮助，请给个 Star！
+
+</div>

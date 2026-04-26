@@ -88,12 +88,12 @@ export default function Hero() {
 │  MINICLAUDE v1.0.0     │
 ├─────────────────────────┤
 │                         │
-│  [████████████] 100%    │
-│                         │
-│  ✓ 44,700 lines removed │
-│  ✓ 200 files deleted    │
-│  ✓ 39 commands stripped │
-│  ✓ 100% local           │
+│  ✓ AI Chat & Dialogue   │
+│  ✓ Code Generation      │
+│  ✓ File Operations      │
+│  ✓ Git Integration      │
+│  ✓ MCP Protocol         │
+│  ✓ Plugin System        │
 │                         │
 └─────────────────────────┘`}
               </pre>
@@ -118,10 +118,10 @@ export default function Hero() {
           className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8"
         >
           {[
-            { value: '44.7K', label: t('hero.stats.lines') },
-            { value: '200+', label: t('hero.stats.files') },
-            { value: '39', label: t('hero.stats.commands') },
-            { value: '100%', label: t('hero.stats.local') }
+            { value: '✓', label: t('hero.stats.chat') },
+            { value: '✓', label: t('hero.stats.code') },
+            { value: '✓', label: t('hero.stats.files') },
+            { value: '✓', label: t('hero.stats.git') }
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <div className="font-display text-4xl md:text-5xl text-accent mb-2">

@@ -112,7 +112,7 @@ export function RateLimitMessage(t0) {
       t7 = getUpsellMessage({
         shouldShowUpsell,
         isMax20x,
-        isExtraUsageCommandEnabled: extraUsage.isEnabled(),
+        isExtraUsageCommandEnabled: false,
         shouldAutoOpenRateLimitOptionsMenu: !!shouldAutoOpenRateLimitOptionsMenu,
         isTeamOrEnterprise,
         hasBillingAccess: hasClaudeAiBillingAccess()

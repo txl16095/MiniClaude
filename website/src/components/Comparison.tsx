@@ -1,4 +1,4 @@
-import { motion, useInView } from 'motion/react'
+﻿import { motion, useInView } from 'motion/react'
 import { useRef } from 'react'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -73,7 +73,7 @@ export default function Comparison() {
           ))}
         </motion.div>
 
-        {/* 精简统计 */}
+        {/* 绮剧畝缁熻 */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
@@ -81,7 +81,7 @@ export default function Comparison() {
           className="mt-20 grid grid-cols-1 md:grid-cols-3 gap-8"
         >
           <div className="border border-white/20 p-8 text-center">
-            <div className="font-display text-5xl text-accent mb-4">44,700</div>
+            <div className="font-display text-5xl text-accent mb-4">92,000</div>
             <div className="font-mono text-xs text-white/50 tracking-wider">
               {t('comparison.stats.lines')}
             </div>
@@ -93,7 +93,7 @@ export default function Comparison() {
             </div>
           </div>
           <div className="border border-white/20 p-8 text-center">
-            <div className="font-display text-5xl text-accent mb-4">39</div>
+            <div className="font-display text-5xl text-accent mb-4">42</div>
             <div className="font-mono text-xs text-white/50 tracking-wider">
               {t('comparison.stats.commands')}
             </div>

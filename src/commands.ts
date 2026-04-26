@@ -6,7 +6,6 @@ import copy from './commands/copy/index.js'
 import compact from './commands/compact/index.js'
 import config from './commands/config/index.js'
 import { context, contextNonInteractive } from './commands/context/index.js'
-import cost from './commands/cost/index.js'
 import diff from './commands/diff/index.js'
 import doctor from './commands/doctor/index.js'
 import memory from './commands/memory/index.js'
@@ -105,28 +104,9 @@ import exit from './commands/exit/index.js'
 import exportCommand from './commands/export/index.js'
 import model from './commands/model/index.js'
 import outputStyle from './commands/output-style/index.js'
-import {
-  extraUsage,
-  extraUsageNonInteractive,
-} from './commands/extra-usage/index.js'
 import statusline from './commands/statusline.js'
 import effort from './commands/effort/index.js'
 import stats from './commands/stats/index.js'
-// insights.ts is 113KB (3200 lines, includes diffLines/html rendering). Lazy
-// shim defers the heavy module until /insights is actually invoked.
-const usageReport: Command = {
-  type: 'prompt',
-  name: 'insights',
-  description: '生成当前 Claude Code 使用会话的分析报告',
-  contentLength: 0,
-  progressMessage: 'analyzing your sessions',
-  source: 'builtin',
-  async getPromptForCommand(args, context) {
-    const real = (await import('./commands/insights.js')).default
-    if (real.type !== 'prompt') throw new Error('unreachable')
-    return real.getPromptForCommand(args, context)
-  },
-}
 import debugToolCall from './commands/debug-tool-call/index.js'
 import { getSettingSourceName } from './utils/settings/constants.js'
 import {
@@ -161,7 +141,6 @@ const COMMANDS = memoize((): Command[] => [
   copy,
   context,
   contextNonInteractive,
-  cost,
   diff,
   doctor,
   effort,
@@ -191,9 +170,6 @@ const COMMANDS = memoize((): Command[] => [
   rewind,
   securityReview,
   terminalSetup,
-  extraUsage,
-  extraUsageNonInteractive,
-  usageReport,
   vim,
   ...(forkCmd ? [forkCmd] : []),
   ...(bridge ? [bridge] : []),
@@ -486,8 +462,7 @@ export const REMOTE_SAFE_COMMANDS: Set<Command> = new Set([
   help, // Show help
   theme, // Change terminal theme
   color, // Change agent color
-  vim, // Toggle vim mode
-  cost, // Show session cost (local cost tracking)
+  vim, // Toggle vim mode // Show session cost (local cost tracking)
   copy, // Copy last message
   plan, // Plan mode toggle
   keybindings, // Keybinding management
@@ -510,7 +485,6 @@ export const BRIDGE_SAFE_COMMANDS: Set<Command> = new Set(
   [
     compact, // Shrink context — useful mid-session from a phone
     clear, // Wipe transcript
-    cost, // Show session cost
     files, // List tracked files
   ].filter((c): c is Command => c !== null),
 )

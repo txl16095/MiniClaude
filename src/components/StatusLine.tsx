@@ -1,9 +1,11 @@
 import { feature } from 'bun:bundle';
 import * as React from 'react';
 import { memo, useCallback, useEffect, useRef } from 'react';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import { logEvent } from 'src/services/analytics/index.js';
 import { useAppState, useSetAppState } from 'src/state/AppState.js';
-import type { PermissionMode } from 'src/utils/permissions/PermissionMode.js';
+import { permissionModeShortTitle, type PermissionMode } from 'src/utils/permissions/PermissionMode.js';
 import { getIsRemoteMode, getKairosActive, getMainThreadAgentType, getOriginalCwd, getSdkBetas, getSessionId } from '../bootstrap/state.js';
 import { DEFAULT_OUTPUT_STYLE_NAME } from '../constants/outputStyles.js';
 import { useNotifications } from '../context/notifications.js';
@@ -31,7 +33,7 @@ export function statusLineShouldDisplay(settings: ReadonlySettings): boolean {
   // Assistant mode: statusline fields (model, permission mode, cwd) reflect the
   // REPL/daemon process, not what the agent child is actually running. Hide it.
   if (feature('KAIROS') && getKairosActive()) return false;
-  return settings?.statusLine !== undefined;
+  return true;
 }
 function buildStatusLineCommandInput(permissionMode: PermissionMode, exceeds200kTokens: boolean, settings: ReadonlySettings, messages: Message[], addedDirs: string[], mainLoopModel: ModelName, vimMode?: VimMode): StatusLineCommandInput {
   const agentType = getMainThreadAgentType();
@@ -306,6 +308,52 @@ function StatusLineInner({
   // Get padding from settings or default to 0
   const paddingX = settings?.statusLine?.padding ?? 0;
 
+  // Compute built-in HUD data
+  const msgs = messagesRef.current;
+  const runtimeModel = getRuntimeMainLoopModel({
+    permissionMode,
+    mainLoopModel,
+    exceeds200kTokens: doesMostRecentAssistantMessageExceed200k(msgs),
+  });
+  const currentUsage = getCurrentUsage(msgs);
+  const contextWindowSize = getContextWindowForModel(runtimeModel, getSdkBetas());
+  const ctx = calculateContextPercentages(currentUsage, contextWindowSize);
+  const ctxUsed = Math.round(ctx.used);
+  const cwd = getCwd();
+  const projectName = cwd.split(/[/\\]/).filter(Boolean).pop() || cwd;
+  const modelDisplayName = renderModelName(runtimeModel);
+
+  // Git branch
+  let branchName: string | undefined;
+  try {
+    const headPath = join(getOriginalCwd(), '.git', 'HEAD');
+    const headContent = readFileSync(headPath, 'utf8').trim();
+    const match = headContent.match(/^ref: refs\/heads\/(.+)$/m);
+    if (match) branchName = match[1];
+    else if (headContent) branchName = headContent.slice(0, 7); // detached HEAD, show short hash
+  } catch { /* not a git repo or unable to read */ }
+
+  // Permission mode
+  const modeLabel = permissionModeShortTitle(permissionMode);
+
+  // Session duration
+  const totalSeconds = Math.floor(getTotalDuration() / 1000);
+  const durationStr = totalSeconds < 60
+    ? `${totalSeconds}s`
+    : `${Math.floor(totalSeconds / 60)}m ${totalSeconds % 60}s`;
+
+  // Format: model · branch · mode · ctx: XX% ████░░░░ · project · 5m 30s
+  const parts = [modelDisplayName];
+  if (branchName) parts.push(branchName);
+  parts.push(modeLabel);
+  const hudText = parts.join(' \u00b7 ') + ` \u00b7 ctx: ${ctxUsed}% `;
+
+  // Context bar: 10 blocks
+  const barLen = 10;
+  const filledBlocks = Math.round(ctxUsed / 100 * barLen);
+  const emptyBlocks = barLen - filledBlocks;
+  const barColor = ctxUsed > 80 ? 'error' : ctxUsed > 50 ? 'warning' : 'success';
+
   // StatusLine must have stable height in fullscreen — the footer is
   // flexShrink:0 so a 0→1 row change when the command finishes steals
   // a row from ScrollBox and shifts content. Reserve the row while loading
@@ -313,7 +361,12 @@ function StatusLineInner({
   return <Box paddingX={paddingX} gap={2}>
       {statusLineText ? <Text dimColor wrap="truncate">
           <Ansi>{statusLineText}</Ansi>
-        </Text> : isFullscreenEnvEnabled() ? <Text> </Text> : null}
+        </Text> : <Text dimColor>
+          {hudText}
+          <Text color={barColor}>{"█".repeat(filledBlocks)}</Text>
+          <Text dimColor>{"░".repeat(emptyBlocks)}</Text>
+          <Text dimColor> · {projectName} · {durationStr}</Text>
+        </Text>}
     </Box>;
 }
 

@@ -154,7 +154,7 @@ export const FileWriteTool = buildTool({
     const fullFilePath = expandPath(file_path)
 
     // Reject writes to team memory files that contain secrets
-    const secretError = checkTeamMemSecrets(fullFilePath, content)
+    const secretError = await checkTeamMemSecrets(fullFilePath, content)
     if (secretError) {
       return { result: false, message: secretError, errorCode: 0 }
     }

@@ -141,7 +141,7 @@ export const FileEditTool = buildTool({
     const fullFilePath = expandPath(file_path)
 
     // Reject edits to team memory files that introduce secrets
-    const secretError = checkTeamMemSecrets(fullFilePath, new_string)
+    const secretError = await checkTeamMemSecrets(fullFilePath, new_string)
     if (secretError) {
       return { result: false, message: secretError, errorCode: 0 }
     }

@@ -2,14 +2,13 @@ import { useState, useCallback } from 'react'
 import { Outlet, Link } from 'react-router-dom'
 import Sidebar from '../components/Sidebar'
 import SearchModal from '../components/SearchModal'
-import LanguageToggle from '../components/LanguageToggle'
 import { useLanguage } from '../contexts/LanguageContext'
 
 export default function DocLayout() {
   const [searchOpen, setSearchOpen] = useState(false)
   const openSearch = useCallback(() => setSearchOpen(true), [])
   const closeSearch = useCallback(() => setSearchOpen(false), [])
-  const { t } = useLanguage()
+  const { language, setLanguage, t } = useLanguage()
 
   return (
     <div className="min-h-screen bg-dark text-light font-mono">
@@ -41,7 +40,20 @@ export default function DocLayout() {
           <kbd className="text-xs text-white/20 hidden lg:inline">Ctrl+K</kbd>
         </button>
 
-        <LanguageToggle />
+        <div className="flex gap-1 shrink-0">
+          <button
+            onClick={() => setLanguage('zh')}
+            className={`px-2 py-1 text-[10px] font-mono tracking-wider border transition-colors ${language === 'zh' ? 'bg-accent text-black border-accent' : 'border-white/20 text-white/50 hover:text-white hover:border-white/40'}`}
+          >
+            中文
+          </button>
+          <button
+            onClick={() => setLanguage('en')}
+            className={`px-2 py-1 text-[10px] font-mono tracking-wider border transition-colors ${language === 'en' ? 'bg-accent text-black border-accent' : 'border-white/20 text-white/50 hover:text-white hover:border-white/40'}`}
+          >
+            EN
+          </button>
+        </div>
       </header>
 
       <div className="flex">

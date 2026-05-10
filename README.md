@@ -145,6 +145,7 @@ bun run build  # 构建
 | **生成** | 代码生成 | 创建、修改、重构代码 |
 | **理解** | 项目理解 | 自动分析项目结构 |
 | **模型** | 多模型支持 | Sonnet / Opus / Haiku |
+| **安全** | hard_deny | 无条件禁止规则，管道级拦截 |
 
 <div align="center">
 
@@ -159,6 +160,7 @@ bun run build  # 构建
 │ FileEdit    │ 智能编辑，精确修改指定行             │
 │ Glob        │ 文件搜索，支持通配符                 │
 │ Grep        │ 内容搜索，基于 ripgrep               │
+│ HtmlOutput  │ 生成自包含 HTML 报告，暗色模式       │
 └─────────────┴──────────────────────────────────────┘
 ```
 
@@ -409,6 +411,25 @@ DEBUG=*                             # 启用调试
 ├── skills/             # 自定义技能
 └── plugins/            # 自定义插件
 ```
+
+### hard_deny 安全配置
+
+在 `settings.json` 中配置无条件禁止规则，Agent 执行匹配操作时直接在管道层拦截，不弹窗、不可绕过：
+
+```json
+{
+  "autoMode": {
+    "hard_deny": [
+      "Bash(rm -rf)",
+      "Bash(git push --force main)",
+      "FileWrite(*.env)",
+      "WebFetch"
+    ]
+  }
+}
+```
+
+规则格式 `"ToolName"` 禁用整个工具，`"ToolName(pattern)"` 匹配输入中包含 pattern 的调用。
 
 ---
 

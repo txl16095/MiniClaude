@@ -145,6 +145,7 @@ bun run build  # Build
 | **Generate** | Code Generation | Create, modify, refactor code |
 | **Understand** | Project Understanding | Automatic project structure analysis |
 | **Models** | Multi-Model Support | Sonnet / Opus / Haiku |
+| **Security** | hard_deny | Unconditional deny rules, pipeline-level blocking |
 
 <div align="center">
 
@@ -159,6 +160,7 @@ bun run build  # Build
 │ FileEdit    │ Smart editing, precise line changes  │
 │ Glob        │ File search with wildcards           │
 │ Grep        │ Content search based on ripgrep      │
+│ HtmlOutput  │ Self-contained HTML reports, dark mode │
 └─────────────┴──────────────────────────────────────┘
 ```
 
@@ -399,6 +401,25 @@ DEBUG=*                             # Enable debugging
 ├── skills/             # Custom skills
 └── plugins/            # Custom plugins
 ```
+
+### hard_deny Security Configuration
+
+Add unconditional deny rules in `settings.json`. Matching operations are blocked at the pipeline level — no prompt, no bypass:
+
+```json
+{
+  "autoMode": {
+    "hard_deny": [
+      "Bash(rm -rf)",
+      "Bash(git push --force main)",
+      "FileWrite(*.env)",
+      "WebFetch"
+    ]
+  }
+}
+```
+
+Rule format: `"ToolName"` blocks the entire tool, `"ToolName(pattern)"` blocks calls whose input contains the pattern.
 
 ---
 

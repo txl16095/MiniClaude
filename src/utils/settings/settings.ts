@@ -934,18 +934,25 @@ export function getUseAutoModeDuringPlan(): boolean {
  * otherwise inject classifier allow/deny rules (RCE risk).
  */
 export function getAutoModeConfig():
-  | { allow?: string[]; soft_deny?: string[]; environment?: string[] }
+  | {
+      allow?: string[]
+      soft_deny?: string[]
+      hard_deny?: string[]
+      environment?: string[]
+    }
   | undefined {
   if (feature('TRANSCRIPT_CLASSIFIER')) {
     const schema = z.object({
       allow: z.array(z.string()).optional(),
       soft_deny: z.array(z.string()).optional(),
       deny: z.array(z.string()).optional(),
+      hard_deny: z.array(z.string()).optional(),
       environment: z.array(z.string()).optional(),
     })
 
     const allow: string[] = []
     const soft_deny: string[] = []
+    const hard_deny: string[] = []
     const environment: string[] = []
 
     for (const source of [
@@ -965,20 +972,62 @@ export function getAutoModeConfig():
         if (process.env.USER_TYPE === 'ant') {
           if (result.data.deny) soft_deny.push(...result.data.deny)
         }
+        if (result.data.hard_deny) hard_deny.push(...result.data.hard_deny)
         if (result.data.environment)
           environment.push(...result.data.environment)
       }
     }
 
-    if (allow.length > 0 || soft_deny.length > 0 || environment.length > 0) {
+    if (
+      allow.length > 0 ||
+      soft_deny.length > 0 ||
+      hard_deny.length > 0 ||
+      environment.length > 0
+    ) {
       return {
         ...(allow.length > 0 && { allow }),
         ...(soft_deny.length > 0 && { soft_deny }),
+        ...(hard_deny.length > 0 && { hard_deny }),
         ...(environment.length > 0 && { environment }),
       }
     }
   }
   return undefined
+}
+
+/**
+ * Get hard_deny rules from all settings sources.
+ *
+ * Unlike soft_deny (which feeds the AI classifier prompt), hard_deny is a
+ * code-level enforcement — it does NOT depend on TRANSCRIPT_CLASSIFIER.
+ * Rules are merged across all setting sources (userSettings, localSettings,
+ * flagSettings, policySettings).
+ */
+export function getHardDenyRules(): string[] {
+  const hard_deny: string[] = []
+
+  for (const source of [
+    'userSettings',
+    'localSettings',
+    'flagSettings',
+    'policySettings',
+  ] as const) {
+    const settings = getSettingsForSource(source)
+    if (!settings) continue
+    const autoMode = (settings as Record<string, unknown>).autoMode
+    if (
+      autoMode &&
+      typeof autoMode === 'object' &&
+      'hard_deny' in autoMode &&
+      Array.isArray(autoMode.hard_deny)
+    ) {
+      for (const rule of autoMode.hard_deny) {
+        if (typeof rule === 'string') hard_deny.push(rule)
+      }
+    }
+  }
+
+  return hard_deny
 }
 
 export function rawSettingsContainsKey(key: string): boolean {

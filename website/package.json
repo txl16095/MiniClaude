@@ -14,16 +14,19 @@
     "@vitejs/plugin-react": "^6.0.1",
     "autoprefixer": "^10.5.0",
     "clsx": "^2.1.1",
+    "minisearch": "^7.2.0",
     "motion": "^12.38.0",
     "postcss": "^8.5.10",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-router-dom": "^7.15.0",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "^24.12.2",
+    "@types/react-router-dom": "^5.3.3",
     "typescript": "~6.0.2",
     "vite": "^8.0.10"
   }

@@ -4,6 +4,7 @@ type Language = 'zh' | 'en'
 
 interface LanguageContextType {
   language: Language
+  lang: Language
   setLanguage: (lang: Language) => void
   t: (key: string) => string
 }
@@ -76,6 +77,15 @@ const translations = {
     'install.req.system': '系统',
     'install.req.apikey': 'API 密钥',
     
+    // Navigation
+    'nav.guide': '使用指南',
+    'nav.features': '功能说明',
+    'nav.reference': '参考',
+    'search.placeholder': '搜索文档...',
+    'search.empty': '输入关键词搜索文档',
+    'search.noResults': '没有找到相关结果',
+    'search.tip': 'Ctrl+K',
+
     // Footer
     'footer.desc': '轻量级本地 AI 编程助手\n基于 Claude Code 精简改造',
     'footer.links': '链接',
@@ -150,6 +160,15 @@ const translations = {
     'install.req.system': 'SYSTEM',
     'install.req.apikey': 'API KEY',
     
+    // Navigation
+    'nav.guide': 'Guide',
+    'nav.features': 'Features',
+    'nav.reference': 'Reference',
+    'search.placeholder': 'Search docs...',
+    'search.empty': 'Type to search documentation',
+    'search.noResults': 'No results found',
+    'search.tip': 'Ctrl+K',
+
     // Footer
     'footer.desc': 'Lightweight Local AI Coding Assistant\nBased on Claude Code Streamlined',
     'footer.links': 'LINKS',
@@ -169,7 +188,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
+    <LanguageContext.Provider value={{ language, lang: language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   )

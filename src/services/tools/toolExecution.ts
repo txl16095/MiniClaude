@@ -77,10 +77,12 @@ import {
   createUserMessage,
   withMemoryCorrectionHint,
 } from '../../utils/messages.js'
+import { permissionRuleValueFromString } from '../../utils/permissions/permissionRuleParser.js'
 import type {
   PermissionDecisionReason,
   PermissionResult,
 } from '../../utils/permissions/PermissionResult.js'
+import { getHardDenyRules } from '../../utils/settings/settings.js'
 import {
   startSessionActivity,
   stopSessionActivity,
@@ -596,6 +598,47 @@ export function buildSchemaNotSentHint(
   )
 }
 
+/**
+ * Check the tool call against hard_deny rules from autoMode settings.
+ *
+ * hard_deny rules are unconditional: they block execution regardless of
+ * permission mode (even auto/plan/bypassPermissions). No prompt is shown —
+ * the tool call is rejected immediately.
+ *
+ * Rule format: "ToolName" or "ToolName(pattern)"
+ * - "ToolName" blocks all uses of that tool
+ * - "ToolName(pattern)" blocks uses where any string input value contains the pattern
+ *
+ * Returns a deny message string if blocked, null if allowed.
+ */
+function checkHardDenyRules(
+  toolName: string,
+  input: Record<string, unknown>,
+): string | null {
+  const rules = getHardDenyRules()
+  if (rules.length === 0) return null
+
+  for (const rule of rules) {
+    const parsed = permissionRuleValueFromString(rule)
+    if (parsed.toolName !== toolName) continue
+
+    // No content pattern → block entire tool
+    if (!parsed.ruleContent) {
+      return `Operation blocked by hard_deny rule: "${rule}"`
+    }
+
+    // Content pattern → check against all string input values
+    const pattern = parsed.ruleContent.toLowerCase()
+    for (const value of Object.values(input)) {
+      if (typeof value === 'string' && value.toLowerCase().includes(pattern)) {
+        return `Operation blocked by hard_deny rule: "${rule}"`
+      }
+    }
+  }
+
+  return null
+}
+
 async function checkPermissionsAndCallTool(
   tool: Tool,
   toolUseID: string,
@@ -611,6 +654,44 @@ async function checkPermissionsAndCallTool(
     progress: ToolProgress<ToolProgressData> | ProgressMessage<HookProgress>,
   ) => void,
 ): Promise<MessageUpdateLazy[]> {
+  // ═══════════════════════════════════════════════════════════════════════
+  // HARD_DENY: unconditional block before any permission or hook logic
+  // ═══════════════════════════════════════════════════════════════════════
+  const hardDenyMessage = checkHardDenyRules(
+    tool.name,
+    input as Record<string, unknown>,
+  )
+  if (hardDenyMessage) {
+    logForDebugging(
+      `${tool.name} tool blocked by hard_deny: ${hardDenyMessage}`,
+    )
+    logEvent('tengu_tool_use_hard_denied', {
+      toolName: sanitizeToolNameForAnalytics(tool.name),
+      messageID:
+        messageId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      isMcp: tool.isMcp ?? false,
+      queryChainId: toolUseContext.queryTracking
+        ?.chainId as AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
+      queryDepth: toolUseContext.queryTracking?.depth,
+    })
+    return [
+      {
+        message: createUserMessage({
+          content: [
+            {
+              type: 'tool_result',
+              content: `<hard_deny>${hardDenyMessage}</hard_deny>`,
+              is_error: true,
+              tool_use_id: toolUseID,
+            },
+          ],
+          toolUseResult: `Error: ${hardDenyMessage}`,
+          sourceToolAssistantUUID: assistantMessage.uuid,
+        }),
+      },
+    ]
+  }
+
   // Validate input types with zod (surprisingly, the model is not great at generating valid input)
   const parsedInput = tool.inputSchema.safeParse(input)
   if (!parsedInput.success) {

@@ -85,6 +85,7 @@ function isUsingExternalPermissions(): boolean {
 export type AutoModeRules = {
   allow: string[]
   soft_deny: string[]
+  hard_deny: string[]
   environment: string[]
 }
 
@@ -101,6 +102,7 @@ export function getDefaultExternalAutoModeRules(): AutoModeRules {
   return {
     allow: extractTaggedBullets('user_allow_rules_to_replace'),
     soft_deny: extractTaggedBullets('user_deny_rules_to_replace'),
+    hard_deny: [],
     environment: extractTaggedBullets('user_environment_to_replace'),
   }
 }

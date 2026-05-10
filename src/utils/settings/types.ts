@@ -995,6 +995,12 @@ export const SettingsSchema = lazySchema(() =>
                       deny: z.array(z.string()).optional(),
                     }
                   : {}),
+                hard_deny: z
+                  .array(z.string())
+                  .optional()
+                  .describe(
+                    'Unconditional deny rules — these operations are always blocked regardless of permission mode, without prompting the user. Format: "ToolName" or "ToolName(pattern)". Use for safety-critical blocks like "Bash(rm -rf /)", "FileWrite(*.env)", "Bash(git push --force main)".',
+                  ),
                 environment: z
                   .array(z.string())
                   .optional()

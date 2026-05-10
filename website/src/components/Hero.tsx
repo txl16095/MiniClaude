@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { useLanguage } from '../contexts/LanguageContext'
 
@@ -66,6 +67,13 @@ export default function Hero() {
               >
                 {t('hero.cta.learn')}
               </a>
+
+              <Link
+                to="/guide/quick-start"
+                className="px-8 py-4 border-2 border-accent text-accent font-mono font-bold text-sm tracking-wider hover:bg-accent hover:text-black transition-all"
+              >
+                {t('hero.cta.docs')}
+              </Link>
             </div>
           </motion.div>
 

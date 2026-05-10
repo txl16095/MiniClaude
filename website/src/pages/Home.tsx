@@ -15,7 +15,7 @@ export default function HomePage() {
       <div className="absolute top-4 right-4 z-20 flex items-center gap-4">
         <Link
           to="/guide/quick-start"
-          className="hidden sm:inline px-3 py-1.5 text-xs text-white/50 border border-white/20 hover:text-white hover:border-white/40 transition-colors font-mono"
+          className="px-3 py-1.5 text-xs text-white/50 border border-white/20 hover:text-white hover:border-white/40 transition-colors font-mono"
         >
           {t('nav.guide')}
         </Link>

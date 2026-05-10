@@ -516,10 +516,25 @@ export function getAPIMetadata() {
     }
   }
 
+  const deviceId = getOrCreateUserID()
+  const baseUrl = process.env.ANTHROPIC_BASE_URL
+
+  // 第三方 API（如 DeepSeek）要求 user_id 必须是简单字符串（只能包含字母、数字、下划线、连字符）
+  // 检测是否使用第三方 API：如果设置了 ANTHROPIC_BASE_URL 且不是官方 Anthropic API
+  const isThirdPartyApi = baseUrl && !baseUrl.includes('anthropic.com')
+
+  if (isThirdPartyApi) {
+    // 对于第三方 API，只返回简单的 device_id
+    return {
+      user_id: deviceId,
+    }
+  }
+
+  // 对于官方 Anthropic API，返回完整的 JSON 对象
   return {
     user_id: jsonStringify({
       ...extra,
-      device_id: getOrCreateUserID(),
+      device_id: deviceId,
       // Only include OAuth account UUID when actively using OAuth authentication
       account_uuid: getOauthAccountInfo()?.accountUuid ?? '',
       session_id: getSessionId(),

@@ -5,6 +5,7 @@ import {
   parse as parseJsonc,
 } from 'jsonc-parser/lib/esm/main.js'
 import { stripBOM } from './jsonRead.js'
+import { logForDebugging } from './debug.js'
 import { logError } from './log.js'
 import { memoizeWithLRU } from './memoize.js'
 import { jsonStringify } from './slowOperations.js'
@@ -109,6 +110,9 @@ function parseJSONLBun<T>(data: string | Buffer): T[] {
   // Had an error mid-stream — collect what we got and keep going
   let values = result.values as T[]
   let offset = result.read
+  logForDebugging(
+    `Bun JSONL parse error at offset ${offset}, recovering by skipping to next newline`,
+  )
   while (offset < len) {
     const newlineIndex =
       typeof data === 'string'
@@ -120,6 +124,11 @@ function parseJSONLBun<T>(data: string | Buffer): T[] {
     if (next.values.length > 0) {
       values = values.concat(next.values as T[])
     }
+    if (next.error) {
+      logForDebugging(
+        `Bun JSONL parse error at offset ${next.read}, recovering`,
+      )
+    }
     if (!next.error || next.done || next.read >= len) break
     offset = next.read
   }
@@ -129,6 +138,7 @@ function parseJSONLBun<T>(data: string | Buffer): T[] {
 function parseJSONLBuffer<T>(buf: Buffer): T[] {
   const bufLen = buf.length
   let start = 0
+  let lineNum = 0
 
   // Strip UTF-8 BOM (EF BB BF)
   if (buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf) {
@@ -142,11 +152,14 @@ function parseJSONLBuffer<T>(buf: Buffer): T[] {
 
     const line = buf.toString('utf8', start, end).trim()
     start = end + 1
+    lineNum++
     if (!line) continue
     try {
       results.push(JSON.parse(line) as T)
-    } catch {
-      // Skip malformed lines
+    } catch (e) {
+      logForDebugging(
+        `Skipping corrupted transcript line ${lineNum}: ${(e as Error).message}`,
+      )
     }
   }
   return results
@@ -156,6 +169,7 @@ function parseJSONLString<T>(data: string): T[] {
   const stripped = stripBOM(data)
   const len = stripped.length
   let start = 0
+  let lineNum = 0
 
   const results: T[] = []
   while (start < len) {
@@ -164,11 +178,14 @@ function parseJSONLString<T>(data: string): T[] {
 
     const line = stripped.substring(start, end).trim()
     start = end + 1
+    lineNum++
     if (!line) continue
     try {
       results.push(JSON.parse(line) as T)
-    } catch {
-      // Skip malformed lines
+    } catch (e) {
+      logForDebugging(
+        `Skipping corrupted transcript line ${lineNum}: ${(e as Error).message}`,
+      )
     }
   }
   return results

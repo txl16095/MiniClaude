@@ -3611,6 +3611,9 @@ export async function loadTranscriptFile(
       }
     }
 
+    // parseJSONL splits lines at newline bytes and uses Buffer.toString('utf8')
+    // for decoding, which is safe for multi-byte (emoji) characters — no risk
+    // of splitting surrogate pairs (sync upstream v2.1.132 emoji fix).
     const entries = parseJSONL<Entry>(buf)
 
     // Bridge map for legacy progress entries: progress_uuid → progress_parent_uuid.

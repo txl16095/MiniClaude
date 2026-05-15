@@ -1357,7 +1357,22 @@ export function checkWritePermissionForTool<Input extends AnyObject>(
     }
   }
 
-  // 3. If in acceptEdits or sandboxBashMode mode, allow all writes in original cwd
+  // 3. Plan mode gate: block file writes even with matching allow rules.
+  // Internal paths (plan files, scratchpad) were already allowed at step 1.5.
+  // The user must explicitly approve file writes during plan mode via the
+  // permission prompt rather than relying on previously granted allow rules.
+  if (toolPermissionContext.mode === 'plan') {
+    return {
+      behavior: 'ask',
+      message: `Claude requested to write to ${path}. Plan mode requires explicit approval for file writes.`,
+      decisionReason: {
+        type: 'mode',
+        mode: 'plan',
+      },
+    }
+  }
+
+  // 4. If in acceptEdits or sandboxBashMode mode, allow all writes in original cwd
   const isInWorkingDir = pathInAllowedWorkingPath(
     path,
     toolPermissionContext,

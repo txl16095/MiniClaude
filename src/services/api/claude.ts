@@ -391,6 +391,12 @@ export function getCacheControl({
  * TTLs when GrowthBook's disk cache updates mid-request.
  */
 function should1hCacheTTL(querySource?: QuerySource): boolean {
+  // API key / custom base URL users can opt into 1H caching via env var.
+  // They manage their own billing and don't need GrowthBook gating.
+  if (isEnvTruthy(process.env.ENABLE_PROMPT_CACHING_1H)) {
+    return true
+  }
+
   // 3P Bedrock users get 1h TTL when opted in via env var — they manage their own billing
   // No GrowthBook gating needed since 3P users don't have GrowthBook configured
   if (

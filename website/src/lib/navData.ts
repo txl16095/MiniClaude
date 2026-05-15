@@ -60,7 +60,7 @@ export const searchIndex: SearchEntry[] = [
     path: '/guide/env-vars',
     section: '快速开始',
     content:
-      'ANTHROPIC_API_KEY 必需 ANTHROPIC_BASE_URL 自定义端点 ANTHROPIC_MODEL 默认模型 HTTP_PROXY HTTPS_PROXY DEBUG 代理配置 模型选择',
+      'ANTHROPIC_API_KEY 必需 ANTHROPIC_BASE_URL 自定义端点 ANTHROPIC_MODEL 默认模型 ENABLE_PROMPT_CACHING_1H 提示缓存 1小时TTL 降低费用 DISABLE_PROMPT_CACHING 流空闲看门狗 CLAUDE_DISABLE_STREAM_WATCHDOG PowerShell Windows HTTP_PROXY HTTPS_PROXY DEBUG 代理配置 模型选择',
   },
   {
     title: '第三方模型',
@@ -123,7 +123,7 @@ export const searchIndex: SearchEntry[] = [
     path: '/features/mcp',
     section: '功能指南',
     content:
-      'MCP Model Context Protocol mcpServers stdio SSE HTTP WebSocket chrome-devtools jadx-mcp kali-docker 工具扩展 服务器配置',
+      'MCP Model Context Protocol mcpServers alwaysLoad 工具预加载 免搜索 stdio SSE HTTP WebSocket chrome-devtools jadx-mcp kali-docker 工具扩展 服务器配置',
   },
   {
     title: '项目结构',

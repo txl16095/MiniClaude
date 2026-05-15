@@ -3072,6 +3072,28 @@ async function callMCPTool({
     const timeoutMs = getMcpToolTimeoutMs()
     let timeoutId: NodeJS.Timeout | undefined
 
+    // Create per-call AbortController so concurrent tool calls each have
+    // their own AbortSignal. This prevents the MCP SDK's internal timeout
+    // state from being shared across calls, which could cause one call's
+    // response to silently disarm another call's watchdog.
+    const callAbortController = createAbortController()
+    // Propagate parent (user-initiated) cancellation to the per-call controller
+    if (signal.aborted) {
+      callAbortController.abort(signal.reason)
+    } else {
+      const onParentAbort = () => {
+        callAbortController.abort(signal.reason)
+      }
+      signal.addEventListener('abort', onParentAbort, { once: true })
+      callAbortController.signal.addEventListener(
+        'abort',
+        () => {
+          signal.removeEventListener('abort', onParentAbort)
+        },
+        { once: true },
+      )
+    }
+
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(
         (reject, name, tool, timeoutMs) => {
@@ -3099,7 +3121,7 @@ async function callMCPTool({
         },
         CallToolResultSchema,
         {
-          signal,
+          signal: callAbortController.signal,
           timeout: timeoutMs,
           onprogress: onProgress
             ? sdkProgress => {

@@ -8,12 +8,13 @@ export default function Mcp() {
       <p>MCP（Model Context Protocol）是一种开放协议，允许 MiniClaude 连接到外部工具服务器，动态扩展 Agent 的能力边界。</p>
 
       <h2 id="config">服务器配置</h2>
-      <p>在 <code>~/.claude/settings.json</code> 中配置：</p>
+      <p>在 <code>~/.claude/settings.json</code> 或 <code>.mcp.json</code> 中配置：</p>
       <pre><code>{`{
   "mcpServers": {
     "chrome-devtools": {
       "command": "npx",
-      "args": ["-y", "chrome-devtools-mcp@latest"]
+      "args": ["-y", "chrome-devtools-mcp@latest"],
+      "alwaysLoad": true
     },
     "my-server": {
       "command": "python",
@@ -25,6 +26,7 @@ export default function Mcp() {
     }
   }
 }`}</code></pre>
+      <p>配置 <code>"alwaysLoad": true</code> 后，该服务器的<b>全部工具</b>会始终出现在 Agent 工具列表中，无需 Tool Search 延迟发现。适用于常用 MCP 服务器。</p>
 
       <h2 id="transports">传输方式</h2>
       <table>

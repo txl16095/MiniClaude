@@ -449,7 +449,20 @@ export async function getURLMarkdownContent(
   }
 
   const bytes = rawBuffer.length
-  const htmlContent = rawBuffer.toString('utf-8')
+  let htmlContent = rawBuffer.toString('utf-8')
+
+  // Truncate raw HTML before conversion to prevent hangs on very large pages.
+  // 1MB of HTML is far more than enough to produce 100K of markdown.
+  const MAX_HTML_LENGTH = 1_000_000
+  if (htmlContent.length > MAX_HTML_LENGTH) {
+    htmlContent = htmlContent.slice(0, MAX_HTML_LENGTH)
+  }
+
+  // Strip <style> and <script> contents to prevent CSS-heavy pages from
+  // exhausting the content budget before reaching actual text.
+  htmlContent = htmlContent
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
 
   let markdownContent: string
   let contentBytes: number

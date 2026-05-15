@@ -59,6 +59,7 @@ coverage/
 # 本地脚本和代理
 fastgpt_proxy.py
 start-fastgpt-proxy.bat
+mc-fastgpt.bat
 mc.bat
 miniclaude.bat
 resume.bat

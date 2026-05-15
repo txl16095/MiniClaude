@@ -3,6 +3,7 @@ import MarkdownDoc, { DocStyles } from '../../components/MarkdownDoc'
 const toc = [
   { id: 'required', text: '必需变量', level: 2 as const },
   { id: 'model', text: '模型配置', level: 2 as const },
+  { id: 'cache', text: '缓存配置', level: 2 as const },
   { id: 'debug', text: '调试选项', level: 2 as const },
   { id: 'advanced', text: '高级配置', level: 2 as const },
 ]
@@ -34,6 +35,17 @@ export default function EnvVars() {
         ['ANTHROPIC_SMALL_FAST_MODEL', '可选', '快速任务模型，默认 claude-haiku-4-5'],
       ])}</tbody></table>
 
+      <h2 id="cache">缓存配置</h2>
+      <p>Prompt Caching 可大幅降低 API 费用（30-50%）。MiniClaude 默认启用 5 分钟 TTL 缓存，通过环境变量可升级为 1 小时。</p>
+      <table><thead><tr><th>变量名</th><th>必需</th><th>说明</th></tr></thead>
+      <tbody>{rows([
+        ['ENABLE_PROMPT_CACHING_1H', '推荐', '启用 1 小时缓存 TTL（默认 5 分钟）。<strong>强烈推荐</strong>，可显著降低 API 费用'],
+        ['DISABLE_PROMPT_CACHING', '可选', '完全禁用 Prompt Caching。不推荐'],
+        ['DISABLE_PROMPT_CACHING_HAIKU', '可选', '仅对 Haiku 模型禁用缓存'],
+        ['DISABLE_PROMPT_CACHING_SONNET', '可选', '仅对 Sonnet 模型禁用缓存'],
+        ['DISABLE_PROMPT_CACHING_OPUS', '可选', '仅对 Opus 模型禁用缓存'],
+      ])}</tbody></table>
+
       <h2 id="debug">调试选项</h2>
       <table><thead><tr><th>变量名</th><th>必需</th><th>说明</th></tr></thead>
       <tbody>{rows([
@@ -49,6 +61,9 @@ export default function EnvVars() {
         ['CLAUDE_CODE_ENABLE_XAA', '可选', '启用 XAA (SEP-990) IdP 集成'],
         ['DISABLE_AUTOUPDATER', '可选', '设为 1 禁用自动更新检查'],
         ['CLAUDE_CODE_SHELL', '可选', '自定义 Shell 路径（默认系统 Shell）'],
+        ['CLAUDE_DISABLE_STREAM_WATCHDOG', '可选', '禁用流空闲看门狗（默认启用）。Mac 休眠唤醒后自动恢复连接'],
+        ['CLAUDE_STREAM_IDLE_TIMEOUT_MS', '可选', '流空闲超时毫秒数（默认 180000，即 3 分钟）'],
+        ['CLAUDE_CODE_USE_POWERSHELL_TOOL', '可选', 'Windows 上优先使用 PowerShell（默认启用）'],
       ])}</tbody></table>
     </>} />
   )

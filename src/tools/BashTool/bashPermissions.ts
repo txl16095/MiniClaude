@@ -557,6 +557,16 @@ export function stripSafeWrappers(command: string): string {
     // above so not over-stripping here is safe. Main need: `stdbuf -o0 cmd`.
     /^stdbuf(?:[ \t]+-[ioe][LN0-9]+)+[ \t]+(?:--[ \t]+)?/,
     /^nohup[ \t]+(?:--[ \t]+)?/,
+    // env: exec wrapper that runs its args as a subcommand.
+    // Strip `env cmd`, `env -i cmd`, `env -u NAME cmd` so permission
+    // rules match the wrapped command rather than the wrapper.
+    /^env[ \t]+(?:-[iu][ \t]+[A-Za-z_][A-Za-z0-9_]*[ \t]+)*(?:--[ \t]+)?/,
+    // sudo: privilege escalation wrapper. Strip `sudo cmd`,
+    // `sudo -u user cmd`, etc.
+    /^sudo[ \t]+(?:-[gku][ \t]+[A-Za-z0-9_]+[ \t]+|-[AEHbPnS][ \t]+)*(?:--[ \t]+)?/,
+    // watch: periodic command execution wrapper.
+    // Strip `watch cmd`, `watch -n 5 cmd`, etc.
+    /^watch[ \t]+(?:-[dtnbe][ \t]+[A-Za-z0-9_.]+[ \t]+)*(?:--[ \t]+)?/,
   ] as const
 
   // Pattern for environment variables:
@@ -1047,6 +1057,24 @@ export const bashToolCheckExactMatchPermission = (
   }
 }
 
+/**
+ * Check if a command is a `find` invocation with dangerous flags (-exec,
+ * -execdir, -ok, -okdir, -delete) that could execute arbitrary commands or
+ * delete files. Used to prevent broad Bash(find:*) allow rules from silently
+ * approving these operations.
+ */
+function hasDangerousFindArgs(command: string): boolean {
+  const trimmed = command.trim()
+  // Fast path: not a find command
+  const firstSpace = trimmed.indexOf(' ')
+  if (firstSpace === -1) return false
+  const baseCmd = trimmed.slice(0, firstSpace)
+  if (baseCmd !== 'find') return false
+  // Check for dangerous flags (word-boundary-gated to avoid false
+  // positives on e.g. --exec-timeout or --delete-something).
+  return /\s+-(?:exec\b|execdir\b|ok\b|okdir\b|delete)\b/.test(trimmed)
+}
+
 export const bashToolCheckPermission = (
   input: z.infer<typeof BashTool.inputSchema>,
   toolPermissionContext: ToolPermissionContext,
@@ -1124,6 +1152,25 @@ export const bashToolCheckPermission = (
   // 4. Allow if command had an exact match allow
   if (exactMatchResult.behavior === 'allow') {
     return exactMatchResult
+  }
+
+  // 4.5. Block find -exec/-execdir/-ok/-okdir/-delete from auto-allow by
+  // prefix/wildcard rules. These flags let find execute arbitrary commands
+  // or delete files — a broad Bash(find:*) allow rule must not silently
+  // approve them. The user must be prompted for explicit approval.
+  if (
+    matchingAllowRules[0] !== undefined &&
+    hasDangerousFindArgs(command)
+  ) {
+    return {
+      behavior: 'ask',
+      message: createPermissionRequestMessage(BashTool.name),
+      decisionReason: {
+        type: 'other',
+        reason:
+          'find with -exec/-delete requires explicit approval even with matching allow rules',
+      },
+    }
   }
 
   // 5. Allow if command has an allow rule

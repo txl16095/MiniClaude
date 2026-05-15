@@ -391,6 +391,12 @@ export function getCacheControl({
  * TTLs when GrowthBook's disk cache updates mid-request.
  */
 function should1hCacheTTL(querySource?: QuerySource): boolean {
+  // API key / custom base URL users can opt into 1H caching via env var.
+  // They manage their own billing and don't need GrowthBook gating.
+  if (isEnvTruthy(process.env.ENABLE_PROMPT_CACHING_1H)) {
+    return true
+  }
+
   // 3P Bedrock users get 1h TTL when opted in via env var — they manage their own billing
   // No GrowthBook gating needed since 3P users don't have GrowthBook configured
   if (
@@ -1886,11 +1892,11 @@ async function* queryModel(
     // kill hung streams. Without this, a silently dropped connection can hang
     // the session indefinitely since the SDK's request timeout only covers the
     // initial fetch(), not the streaming body.
-    const streamWatchdogEnabled = isEnvTruthy(
-      process.env.CLAUDE_ENABLE_STREAM_WATCHDOG,
+    const streamWatchdogEnabled = !isEnvTruthy(
+      process.env.CLAUDE_DISABLE_STREAM_WATCHDOG,
     )
     const STREAM_IDLE_TIMEOUT_MS =
-      parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 90_000
+      parseInt(process.env.CLAUDE_STREAM_IDLE_TIMEOUT_MS || '', 10) || 180_000
     const STREAM_IDLE_WARNING_MS = STREAM_IDLE_TIMEOUT_MS / 2
     let streamIdleAborted = false
     // performance.now() snapshot when watchdog fires, for measuring abort propagation delay

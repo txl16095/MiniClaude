@@ -2363,10 +2363,17 @@ export function normalizeMessagesForAPI(
     }
   }
 
-  // Validate all images are within API size limits before sending
-  validateImagesForAPI(sanitized)
+  // Strip thinking blocks with empty/missing signatures before API send.
+  // The API requires thinking blocks to have a non-empty `signature` field.
+  // These can result from: incomplete streaming (signature_delta never arrived),
+  // edited messages, or compacted transcripts where signature metadata was lost.
+  // Sending them would produce a 400 error.
+  const withValidSignatures = stripInvalidThinkingSignatures(sanitized)
 
-  return sanitized
+  // Validate all images are within API size limits before sending
+  validateImagesForAPI(withValidSignatures)
+
+  return withValidSignatures
 }
 
 export function mergeUserMessagesAndToolResults(
@@ -5047,6 +5054,35 @@ export function filterOrphanedThinkingOnlyMessages(
   })
 
   return filtered
+}
+
+/**
+ * Strip thinking blocks with empty/missing signatures from assistant messages.
+ * The API requires thinking blocks to have a non-empty `signature` field.
+ * Incomplete streaming can leave `signature: ''` when the signature_delta
+ * event was never delivered (e.g., interrupted stream). Also catches blocks
+ * where the signature was lost during message reconstruction or editing.
+ */
+function stripInvalidThinkingSignatures(
+  messages: (UserMessage | AssistantMessage)[],
+): (UserMessage | AssistantMessage)[] {
+  return messages.map(msg => {
+    if (msg.type !== 'assistant') return msg
+    const content = msg.message.content
+    if (!Array.isArray(content)) return msg
+
+    const filtered = content.filter(block => {
+      if (block.type !== 'thinking') return true
+      const signature = (block as { signature?: string }).signature
+      return !!signature // non-empty string required by API
+    })
+
+    if (filtered.length === content.length) return msg
+    return {
+      ...msg,
+      message: { ...msg.message, content: filtered },
+    } as typeof msg
+  })
 }
 
 /**

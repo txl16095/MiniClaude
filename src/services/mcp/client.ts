@@ -256,6 +256,16 @@ import { jsonParse, jsonStringify } from '../../utils/slowOperations.js'
 
 const MCP_AUTH_CACHE_TTL_MS = 15 * 60 * 1000 // 15 min
 
+/**
+ * Tracks in-flight MCP tool calls so they can be aborted when a transport
+ * disconnects, preventing indefinite hangs on SSE/HTTP transports.
+ */
+const pendingToolCalls = new Map<
+  string,
+  { serverName: string; abortController: AbortController }
+>()
+let pendingToolCallId = 0
+
 type McpAuthCacheData = Record<string, { timestamp: number }>
 
 function getMcpAuthCachePath(): string {
@@ -1403,6 +1413,21 @@ export const connectToServer = memoize(
         }
       }
 
+      // When the transport closes (server disconnect, network failure), abort
+      // pending tool calls so they fail fast instead of hanging indefinitely.
+      const origTransportOnClose = transport.onclose
+      transport.onclose = () => {
+        logMCPError(name, `MCP transport closed for server ${name}`)
+        for (const [, pending] of pendingToolCalls) {
+          if (pending.serverName === name) {
+            pending.abortController.abort(
+              new Error(`MCP server ${name} disconnected`),
+            )
+          }
+        }
+        origTransportOnClose?.()
+      }
+
       const cleanup = async () => {
         // In-process servers (e.g. Chrome MCP) don't have child processes or stderr
         if (inProcessServer) {
@@ -1784,7 +1809,7 @@ export const fetchToolsForClient = memoizeWithLRU(
                     .replace(/\s+/g, ' ')
                     .trim() || undefined
                 : undefined,
-            alwaysLoad: tool._meta?.['anthropic/alwaysLoad'] === true,
+            alwaysLoad: client.config.alwaysLoad === true || tool._meta?.['anthropic/alwaysLoad'] === true,
             async description() {
               return tool.description ?? ''
             },
@@ -3049,6 +3074,7 @@ async function callMCPTool({
 }> {
   const toolStartTime = Date.now()
   let progressInterval: NodeJS.Timeout | undefined
+  const callId = `mcp-call-${pendingToolCallId++}`
 
   try {
     logMCPDebug(name, `Calling MCP tool: ${tool}`)
@@ -3071,6 +3097,33 @@ async function callMCPTool({
     // internal timeout doesn't work (e.g., SSE stream breaks mid-request)
     const timeoutMs = getMcpToolTimeoutMs()
     let timeoutId: NodeJS.Timeout | undefined
+
+    // Create per-call AbortController so concurrent tool calls each have
+    // their own AbortSignal. This prevents the MCP SDK's internal timeout
+    // state from being shared across calls, which could cause one call's
+    // response to silently disarm another call's watchdog.
+    const callAbortController = createAbortController()
+    // Register so transport.onclose can abort this call on disconnect
+    pendingToolCalls.set(callId, {
+      serverName: name,
+      abortController: callAbortController,
+    })
+    // Propagate parent (user-initiated) cancellation to the per-call controller
+    if (signal.aborted) {
+      callAbortController.abort(signal.reason)
+    } else {
+      const onParentAbort = () => {
+        callAbortController.abort(signal.reason)
+      }
+      signal.addEventListener('abort', onParentAbort, { once: true })
+      callAbortController.signal.addEventListener(
+        'abort',
+        () => {
+          signal.removeEventListener('abort', onParentAbort)
+        },
+        { once: true },
+      )
+    }
 
     const timeoutPromise = new Promise<never>((_, reject) => {
       timeoutId = setTimeout(
@@ -3099,7 +3152,7 @@ async function callMCPTool({
         },
         CallToolResultSchema,
         {
-          signal,
+          signal: callAbortController.signal,
           timeout: timeoutMs,
           onprogress: onProgress
             ? sdkProgress => {
@@ -3239,6 +3292,9 @@ async function callMCPTool({
     }
     return { content: undefined }
   } finally {
+    // Remove from pending tracking (the transport.onclose handler
+    // may have already deleted this entry — Map.delete is idempotent)
+    pendingToolCalls.delete(callId)
     // Always clear intervals
     if (progressInterval !== undefined) {
       clearInterval(progressInterval)

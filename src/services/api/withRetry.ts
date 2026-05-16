@@ -7,15 +7,13 @@ import {
 } from '@anthropic-ai/sdk'
 import type { QuerySource } from 'src/constants/querySource.js'
 import type { SystemAPIErrorMessage } from 'src/types/message.js'
-import { isAwsCredentialsProviderError } from 'src/utils/aws.js'
+
 import { logForDebugging } from 'src/utils/debug.js'
 import { logError } from 'src/utils/log.js'
 import { createSystemAPIErrorMessage } from 'src/utils/messages.js'
 import { getAPIProviderForStatsig } from 'src/utils/model/providers.js'
 import {
   clearApiKeyHelperCache,
-  clearAwsCredentialsCache,
-  clearGcpCredentialsCache,
   getClaudeAIOAuthTokens,
   handleOAuth401Error,
   isClaudeAISubscriber,
@@ -233,8 +231,6 @@ export async function* withRetry<T>(
         client === null ||
         (lastError instanceof APIError && lastError.status === 401) ||
         isOAuthTokenRevokedError(lastError) ||
-        isBedrockAuthError(lastError) ||
-        isVertexAuthError(lastError) ||
         isStaleConnection
       ) {
         // On 401 "token expired" or 403 "token revoked", force a token refresh
@@ -371,12 +367,8 @@ export async function* withRetry<T>(
         throw new CannotRetryError(error, retryContext)
       }
 
-      // AWS/GCP errors aren't always APIError, but can be retried
-      const handledCloudAuthError =
-        handleAwsCredentialError(error) || handleGcpCredentialError(error)
       if (
-        !handledCloudAuthError &&
-        (!(error instanceof APIError) || !shouldRetry(error))
+        !(error instanceof APIError) || !shouldRetry(error)
       ) {
         throw new CannotRetryError(error, retryContext)
       }
@@ -626,71 +618,6 @@ function isOAuthTokenRevokedError(error: unknown): boolean {
     error.status === 403 &&
     (error.message?.includes('OAuth token has been revoked') ?? false)
   )
-}
-
-function isBedrockAuthError(error: unknown): boolean {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK)) {
-    // AWS libs reject without an API call if .aws holds a past Expiration value
-    // otherwise, API calls that receive expired tokens give generic 403
-    // "The security token included in the request is invalid"
-    if (
-      isAwsCredentialsProviderError(error) ||
-      (error instanceof APIError && error.status === 403)
-    ) {
-      return true
-    }
-  }
-  return false
-}
-
-/**
- * Clear AWS auth caches if appropriate.
- * @returns true if action was taken.
- */
-function handleAwsCredentialError(error: unknown): boolean {
-  if (isBedrockAuthError(error)) {
-    clearAwsCredentialsCache()
-    return true
-  }
-  return false
-}
-
-// google-auth-library throws plain Error (no typed name like AWS's
-// CredentialsProviderError). Match common SDK-level credential-failure messages.
-function isGoogleAuthLibraryCredentialError(error: unknown): boolean {
-  if (!(error instanceof Error)) return false
-  const msg = error.message
-  return (
-    msg.includes('Could not load the default credentials') ||
-    msg.includes('Could not refresh access token') ||
-    msg.includes('invalid_grant')
-  )
-}
-
-function isVertexAuthError(error: unknown): boolean {
-  if (isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX)) {
-    // SDK-level: google-auth-library fails in prepareOptions() before the HTTP call
-    if (isGoogleAuthLibraryCredentialError(error)) {
-      return true
-    }
-    // Server-side: Vertex returns 401 for expired/invalid tokens
-    if (error instanceof APIError && error.status === 401) {
-      return true
-    }
-  }
-  return false
-}
-
-/**
- * Clear GCP auth caches if appropriate.
- * @returns true if action was taken.
- */
-function handleGcpCredentialError(error: unknown): boolean {
-  if (isVertexAuthError(error)) {
-    clearGcpCredentialsCache()
-    return true
-  }
-  return false
 }
 
 function shouldRetry(error: APIError): boolean {

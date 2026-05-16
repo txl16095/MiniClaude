@@ -192,7 +192,6 @@ import { OAuthService } from 'src/services/oauth/index.js'
 import { installOAuthTokens } from 'src/cli/handlers/auth.js'
 import { getAPIProvider } from 'src/utils/model/providers.js'
 import type { HookCallbackMatcher } from 'src/types/hooks.js'
-import { AwsAuthStatusManager } from 'src/utils/awsAuthStatusManager.js'
 import type { HookEvent } from 'src/entrypoints/agentSdkTypes.js'
 import {
   registerHookCallbacks,
@@ -837,7 +836,6 @@ export async function runHeadless(
   headlessProfilerCheckpoint('after_loadInitialMessages')
 
   // Ensure model strings are initialized before generating model options.
-  // For Bedrock users, this waits for the profile fetch to get correct region strings.
   await ensureModelStringsInitialized()
   headlessProfilerCheckpoint('after_modelStrings')
 
@@ -1107,21 +1105,6 @@ function runHeadlessStreaming(
     pendingLastEmittedEntry: null,
   }
 
-  // Set up AWS auth status listener if enabled
-  let unsubscribeAuthStatus: (() => void) | undefined
-  if (options.enableAuthStatus) {
-    const authStatusManager = AwsAuthStatusManager.getInstance()
-    unsubscribeAuthStatus = authStatusManager.subscribe(status => {
-      output.enqueue({
-        type: 'auth_status',
-        isAuthenticating: status.isAuthenticating,
-        output: status.output,
-        error: status.error,
-        uuid: randomUUID(),
-        session_id: getSessionId(),
-      })
-    })
-  }
 
   // Set up rate limit status listener to emit SDKRateLimitEvent for all status changes.
   // Emitting for all statuses (including 'allowed') ensures consumers can clear warnings
@@ -2673,7 +2656,6 @@ function runHeadlessStreaming(
         suggestionState.abortController = null
         await finalizePendingAsyncHooks()
         unsubscribeSkillChanges()
-        unsubscribeAuthStatus?.()
         statusListeners.delete(rateLimitListener)
         output.done()
       }
@@ -4498,23 +4480,6 @@ async function handleInitializeRequest(
     },
   })
 
-  // After the initialize message, check the auth status-
-  // This will get notified of changes, but we also want to send the
-  // initial state.
-  if (enableAuthStatus) {
-    const authStatusManager = AwsAuthStatusManager.getInstance()
-    const status = authStatusManager.getStatus()
-    if (status) {
-      output.enqueue({
-        type: 'auth_status',
-        isAuthenticating: status.isAuthenticating,
-        output: status.output,
-        error: status.error,
-        uuid: randomUUID(),
-        session_id: getSessionId(),
-      })
-    }
-  }
 }
 
 async function handleRewindFiles(

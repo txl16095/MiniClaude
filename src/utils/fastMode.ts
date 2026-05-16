@@ -26,7 +26,6 @@ import {
   type ModelSetting,
   parseUserSpecifiedModel,
 } from './model/model.js'
-import { getAPIProvider } from './model/providers.js'
 import { isEssentialTrafficOnly } from './privacyLevel.js'
 import {
   getInitialSettings,
@@ -107,13 +106,6 @@ export function getFastModeUnavailableReason(): string | null {
       logForDebugging(`Fast mode unavailable: ${reason}`)
       return reason
     }
-  }
-
-  // Only available for 1P (not Bedrock/Vertex/Foundry)
-  if (getAPIProvider() !== 'firstParty') {
-    const reason = 'Fast mode is not available on Bedrock, Vertex, or Foundry'
-    logForDebugging(`Fast mode unavailable: ${reason}`)
-    return reason
   }
 
   if (orgStatus.status === 'disabled') {

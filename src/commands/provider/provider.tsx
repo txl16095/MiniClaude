@@ -5,6 +5,7 @@ import { useSetAppState } from '../../state/AppState.js'
 import { updateSettingsForSource } from '../../utils/settings/settings.js'
 import { getInitialSettings } from '../../utils/settings/settings.js'
 import { getSettingsForSource } from '../../utils/settings/settings.js'
+import { applyConfigEnvironmentVariables } from '../../utils/managedEnv.js'
 import { logEvent } from '../../services/analytics/index.js'
 
 interface ProviderConfig {
@@ -54,6 +55,9 @@ function ProviderSwitch({
       onDone(`Failed to switch provider: ${result.error.message}`)
       return
     }
+
+    // Hot-reload env vars into process.env so next API call uses new endpoint
+    applyConfigEnvironmentVariables()
 
     // Update HUD model display
     if (provider.model) {

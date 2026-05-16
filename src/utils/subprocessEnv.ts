@@ -17,7 +17,6 @@ const GHA_SUBPROCESS_SCRUB = [
   'ANTHROPIC_API_KEY',
   'CLAUDE_CODE_OAUTH_TOKEN',
   'ANTHROPIC_AUTH_TOKEN',
-  'ANTHROPIC_FOUNDRY_API_KEY',
   'ANTHROPIC_CUSTOM_HEADERS',
 
   // OTLP exporter headers — documented to carry Authorization=Bearer tokens
@@ -30,7 +29,6 @@ const GHA_SUBPROCESS_SCRUB = [
   // Cloud provider creds — same pattern (lazy SDK reads)
   'AWS_SECRET_ACCESS_KEY',
   'AWS_SESSION_TOKEN',
-  'AWS_BEARER_TOKEN_BEDROCK',
   'GOOGLE_APPLICATION_CREDENTIALS',
   'AZURE_CLIENT_SECRET',
   'AZURE_CLIENT_CERTIFICATE_PATH',

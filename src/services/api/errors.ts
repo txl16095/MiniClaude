@@ -29,7 +29,6 @@ import {
   isNonCustomOpusModel,
 } from 'src/utils/model/model.js'
 import { getModelStrings } from 'src/utils/model/modelStrings.js'
-import { getAPIProvider } from 'src/utils/model/providers.js'
 import { getIsNonInteractiveSession } from '../../bootstrap/state.js'
 import {
   API_PDF_MAX_PAGES,
@@ -395,31 +394,6 @@ export function isValidAPIMessage(value: unknown): value is BetaMessage {
     typeof (value as BetaMessage).model === 'string' &&
     typeof (value as BetaMessage).usage === 'object'
   )
-}
-
-/** Lower-level error that AWS can return. */
-type AmazonError = {
-  Output?: {
-    __type?: string
-  }
-  Version?: string
-}
-
-/**
- * Given a response that doesn't look quite right, see if it contains any known error types we can extract.
- */
-export function extractUnknownErrorFormat(value: unknown): string | undefined {
-  // Check if value is a valid object first
-  if (!value || typeof value !== 'object') {
-    return undefined
-  }
-
-  // Amazon Bedrock routing errors
-  if ((value as AmazonError).Output?.__type) {
-    return (value as AmazonError).Output!.__type
-  }
-
-  return undefined
 }
 
 export function getAssistantMessageFromError(
@@ -882,32 +856,14 @@ export function getAssistantMessageFromError(
     })
   }
 
-  // Bedrock errors like "403 You don't have access to the model with the specified model ID."
-  // don't contain the actual model ID
-  if (
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) &&
-    error instanceof Error &&
-    error.message.toLowerCase().includes('model id')
-  ) {
-    const switchCmd = getIsNonInteractiveSession() ? '--model' : '/model'
-    const fallbackSuggestion = get3PModelFallbackSuggestion(model)
-    return createAssistantAPIErrorMessage({
-      content: fallbackSuggestion
-        ? `${API_ERROR_MESSAGE_PREFIX} (${model}): ${error.message}. Try ${switchCmd} to switch to ${fallbackSuggestion}.`
-        : `${API_ERROR_MESSAGE_PREFIX} (${model}): ${error.message}. Run ${switchCmd} to pick a different model.`,
-      error: 'invalid_request',
-    })
-  }
-
   // 404 Not Found — usually means the selected model doesn't exist or isn't
   // available. Guide the user to /model so they can pick a valid one.
-  // For 3P users, suggest a specific fallback model they can try.
   if (error instanceof APIError && error.status === 404) {
     const switchCmd = getIsNonInteractiveSession() ? '--model' : '/model'
-    const fallbackSuggestion = get3PModelFallbackSuggestion(model)
+    const fallbackSuggestion = getModelFallbackSuggestion(model)
     return createAssistantAPIErrorMessage({
       content: fallbackSuggestion
-        ? `The model ${model} is not available on your ${getAPIProvider()} deployment. Try ${switchCmd} to switch to ${fallbackSuggestion}, or ask your admin to enable this model.`
+        ? `The model ${model} is not available. Try ${switchCmd} to switch to ${fallbackSuggestion}, or ask your admin to enable this model.`
         : `There's an issue with the selected model (${model}). It may not exist or you may not have access to it. Run ${switchCmd} to pick a different model.`,
       error: 'invalid_request',
     })
@@ -934,16 +890,12 @@ export function getAssistantMessageFromError(
 }
 
 /**
- * For 3P users, suggest a fallback model when the selected model is unavailable.
+ * Suggest a fallback model when the selected model is unavailable.
  * Returns a model name suggestion, or undefined if no suggestion is applicable.
  */
-function get3PModelFallbackSuggestion(model: string): string | undefined {
-  if (getAPIProvider() === 'firstParty') {
-    return undefined
-  }
-  // @[MODEL LAUNCH]: Add a fallback suggestion chain for the new model → previous version for 3P
+function getModelFallbackSuggestion(model: string): string | undefined {
   const m = model.toLowerCase()
-  // If the failing model looks like an Opus 4.6 variant, suggest the default Opus (4.1 for 3P)
+  // If the failing model looks like an Opus 4.6 variant, suggest the default Opus
   if (m.includes('opus-4-6') || m.includes('opus_4_6')) {
     return getModelStrings().opus41
   }
@@ -1130,15 +1082,6 @@ export function classifyAPIError(error: unknown): string {
     (error.status === 401 || error.status === 403)
   ) {
     return 'auth_error'
-  }
-
-  // Bedrock-specific errors
-  if (
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) &&
-    error instanceof Error &&
-    error.message.toLowerCase().includes('model id')
-  ) {
-    return 'bedrock_model_access'
   }
 
   // Status code based fallbacks

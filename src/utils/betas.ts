@@ -6,7 +6,6 @@ import {
 } from 'src/services/analytics/growthbook.js'
 import { getIsNonInteractiveSession, getSdkBetas } from '../bootstrap/state.js'
 import {
-  BEDROCK_EXTRA_PARAMS_HEADERS,
   CLAUDE_CODE_20250219_BETA_HEADER,
   CLI_INTERNAL_BETA_HEADER,
   CONTEXT_1M_BETA_HEADER,
@@ -18,7 +17,6 @@ import {
   SUMMARIZE_CONNECTOR_TEXT_BETA_HEADER,
   TOKEN_EFFICIENT_TOOLS_BETA_HEADER,
   TOOL_SEARCH_BETA_HEADER_1P,
-  TOOL_SEARCH_BETA_HEADER_3P,
   WEB_SEARCH_BETA_HEADER,
 } from '../constants/betas.js'
 import { OAUTH_BETA_HEADER } from '../constants/oauth.js'
@@ -27,7 +25,7 @@ import { has1mContext } from './context.js'
 import { isEnvDefinedFalsy, isEnvTruthy } from './envUtils.js'
 import { getCanonicalName } from './model/model.js'
 import { get3PModelCapabilityOverride } from './model/modelSupportOverrides.js'
-import { getAPIProvider } from './model/providers.js'
+
 import { getInitialSettings } from './settings/settings.js'
 
 /**
@@ -86,9 +84,6 @@ export function filterAllowedSdkBetas(
   return allowed.length > 0 ? allowed : undefined
 }
 
-// Generally, foundry supports all 1P features;
-// however out of an abundance of caution, we do not enable any which are behind an experiment
-
 export function modelSupportsISP(model: string): boolean {
   const supported3P = get3PModelCapabilityOverride(
     model,
@@ -98,54 +93,18 @@ export function modelSupportsISP(model: string): boolean {
     return supported3P
   }
   const canonical = getCanonicalName(model)
-  const provider = getAPIProvider()
-  // Foundry supports interleaved thinking for all models
-  if (provider === 'foundry') {
-    return true
-  }
-  if (provider === 'firstParty') {
-    return !canonical.includes('claude-3-')
-  }
-  return (
-    canonical.includes('claude-opus-4') || canonical.includes('claude-sonnet-4')
-  )
-}
-
-function vertexModelSupportsWebSearch(model: string): boolean {
-  const canonical = getCanonicalName(model)
-  // Web search only supported on Claude 4.0+ models on Vertex
-  return (
-    canonical.includes('claude-opus-4') ||
-    canonical.includes('claude-sonnet-4') ||
-    canonical.includes('claude-haiku-4')
-  )
+  return !canonical.includes('claude-3-')
 }
 
 // Context management is supported on Claude 4+ models
 export function modelSupportsContextManagement(model: string): boolean {
   const canonical = getCanonicalName(model)
-  const provider = getAPIProvider()
-  if (provider === 'foundry') {
-    return true
-  }
-  if (provider === 'firstParty') {
-    return !canonical.includes('claude-3-')
-  }
-  return (
-    canonical.includes('claude-opus-4') ||
-    canonical.includes('claude-sonnet-4') ||
-    canonical.includes('claude-haiku-4')
-  )
+  return !canonical.includes('claude-3-')
 }
 
 // @[MODEL LAUNCH]: Add the new model ID to this list if it supports structured outputs.
 export function modelSupportsStructuredOutputs(model: string): boolean {
   const canonical = getCanonicalName(model)
-  const provider = getAPIProvider()
-  // Structured outputs only supported on firstParty and Foundry (not Bedrock/Vertex yet)
-  if (provider !== 'firstParty' && provider !== 'foundry') {
-    return false
-  }
   return (
     canonical.includes('claude-sonnet-4-6') ||
     canonical.includes('claude-sonnet-4-5') ||
@@ -160,12 +119,7 @@ export function modelSupportsStructuredOutputs(model: string): boolean {
 export function modelSupportsAutoMode(model: string): boolean {
   if (feature('TRANSCRIPT_CLASSIFIER')) {
     const m = getCanonicalName(model)
-    // External: firstParty-only at launch (PI probes not wired for
-    // Bedrock/Vertex/Foundry yet). Checked before allowModels so the GB
-    // override can't enable auto mode on unsupported providers.
-    if (process.env.USER_TYPE !== 'ant' && getAPIProvider() !== 'firstParty') {
-      return false
-    }
+    // Auto mode is firstParty-only (PI probes not wired for other providers).
     // GrowthBook override: tengu_auto_mode_config.allowModels force-enables
     // auto mode for listed models, bypassing the denylist/allowlist below.
     // Exact model IDs (e.g. "claude-strudel-v6-p") match only that model;
@@ -188,7 +142,7 @@ export function modelSupportsAutoMode(model: string): boolean {
       if (/claude-(opus|sonnet|haiku)-4(?!-[6-9])/.test(m)) return false
       return true
     }
-    // External allowlist (firstParty already checked above).
+    // External allowlist.
     return /^claude-(opus|sonnet)-4-6/.test(m)
   }
   return false
@@ -196,14 +150,9 @@ export function modelSupportsAutoMode(model: string): boolean {
 
 /**
  * Get the correct tool search beta header for the current API provider.
- * - Claude API / Foundry: advanced-tool-use-2025-11-20
- * - Vertex AI / Bedrock: tool-search-tool-2025-10-19
+ * Always uses the first-party header since APIProvider is 'firstParty'.
  */
 export function getToolSearchBetaHeader(): string {
-  const provider = getAPIProvider()
-  if (provider === 'vertex' || provider === 'bedrock') {
-    return TOOL_SEARCH_BETA_HEADER_3P
-  }
   return TOOL_SEARCH_BETA_HEADER_1P
 }
 
@@ -213,28 +162,19 @@ export function getToolSearchBetaHeader(): string {
  * and may not be supported by proxies or other providers.
  */
 export function shouldIncludeFirstPartyOnlyBetas(): boolean {
-  return (
-    (getAPIProvider() === 'firstParty' || getAPIProvider() === 'foundry') &&
-    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
-  )
+  return !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
 }
 
 /**
- * Global-scope prompt caching is firstParty only. Foundry is excluded because
- * GrowthBook never bucketed Foundry users into the rollout experiment — the
- * treatment data is firstParty-only.
+ * Global-scope prompt caching — gated only by the experimental betas kill switch.
  */
 export function shouldUseGlobalCacheScope(): boolean {
-  return (
-    getAPIProvider() === 'firstParty' &&
-    !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
-  )
+  return !isEnvTruthy(process.env.CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS)
 }
 
 export const getAllModelBetas = memoize((model: string): string[] => {
   const betaHeaders = []
   const isHaiku = getCanonicalName(model).includes('haiku')
-  const provider = getAPIProvider()
   const includeFirstPartyOnlyBetas = shouldIncludeFirstPartyOnlyBetas()
 
   if (!isHaiku) {
@@ -342,14 +282,8 @@ export const getAllModelBetas = memoize((model: string): string[] => {
     betaHeaders.push(TOKEN_EFFICIENT_TOOLS_BETA_HEADER)
   }
 
-  // Add web search beta for Vertex Claude 4.0+ models only
-  if (provider === 'vertex' && vertexModelSupportsWebSearch(model)) {
-    betaHeaders.push(WEB_SEARCH_BETA_HEADER)
-  }
-  // Foundry only ships models that already support Web Search
-  if (provider === 'foundry') {
-    betaHeaders.push(WEB_SEARCH_BETA_HEADER)
-  }
+  // All first-party models support web search
+  betaHeaders.push(WEB_SEARCH_BETA_HEADER)
 
   // Always send the beta header for 1P. The header is a no-op without a scope field.
   if (includeFirstPartyOnlyBetas) {
@@ -369,19 +303,8 @@ export const getAllModelBetas = memoize((model: string): string[] => {
 })
 
 export const getModelBetas = memoize((model: string): string[] => {
-  const modelBetas = getAllModelBetas(model)
-  if (getAPIProvider() === 'bedrock') {
-    return modelBetas.filter(b => !BEDROCK_EXTRA_PARAMS_HEADERS.has(b))
-  }
-  return modelBetas
+  return getAllModelBetas(model)
 })
-
-export const getBedrockExtraBodyParamsBetas = memoize(
-  (model: string): string[] => {
-    const modelBetas = getAllModelBetas(model)
-    return modelBetas.filter(b => BEDROCK_EXTRA_PARAMS_HEADERS.has(b))
-  },
-)
 
 /**
  * Merge SDK-provided betas with auto-detected model betas.
@@ -430,5 +353,4 @@ export function getMergedBetas(
 export function clearBetasCaches(): void {
   getAllModelBetas.cache?.clear?.()
   getModelBetas.cache?.clear?.()
-  getBedrockExtraBodyParamsBetas.cache?.clear?.()
 }

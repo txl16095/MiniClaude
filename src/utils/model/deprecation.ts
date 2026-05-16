@@ -4,8 +4,6 @@
  * Contains information about deprecated models and their retirement dates.
  */
 
-import { type APIProvider, getAPIProvider } from './providers.js'
-
 type DeprecatedModelInfo = {
   isDeprecated: true
   modelName: string
@@ -21,8 +19,7 @@ type DeprecationInfo = DeprecatedModelInfo | NotDeprecatedInfo
 type DeprecationEntry = {
   /** Human-readable model name */
   modelName: string
-  /** Retirement dates by provider (null = not deprecated for that provider) */
-  retirementDates: Record<APIProvider, string | null>
+  retirementDate: string | null
 }
 
 /**
@@ -33,30 +30,15 @@ type DeprecationEntry = {
 const DEPRECATED_MODELS: Record<string, DeprecationEntry> = {
   'claude-3-opus': {
     modelName: 'Claude 3 Opus',
-    retirementDates: {
-      firstParty: 'January 5, 2026',
-      bedrock: 'January 15, 2026',
-      vertex: 'January 5, 2026',
-      foundry: 'January 5, 2026',
-    },
+    retirementDate: 'January 5, 2026',
   },
   'claude-3-7-sonnet': {
     modelName: 'Claude 3.7 Sonnet',
-    retirementDates: {
-      firstParty: 'February 19, 2026',
-      bedrock: 'April 28, 2026',
-      vertex: 'May 11, 2026',
-      foundry: 'February 19, 2026',
-    },
+    retirementDate: 'February 19, 2026',
   },
   'claude-3-5-haiku': {
     modelName: 'Claude 3.5 Haiku',
-    retirementDates: {
-      firstParty: 'February 19, 2026',
-      bedrock: null,
-      vertex: null,
-      foundry: null,
-    },
+    retirementDate: 'February 19, 2026',
   },
 }
 
@@ -65,10 +47,9 @@ const DEPRECATED_MODELS: Record<string, DeprecationEntry> = {
  */
 function getDeprecatedModelInfo(modelId: string): DeprecationInfo {
   const lowercaseModelId = modelId.toLowerCase()
-  const provider = getAPIProvider()
 
   for (const [key, value] of Object.entries(DEPRECATED_MODELS)) {
-    const retirementDate = value.retirementDates[provider]
+    const retirementDate = value.retirementDate
     if (!lowercaseModelId.includes(key) || !retirementDate) {
       continue
     }

@@ -709,12 +709,6 @@ async function translateCodexStreamToAnthropic(
           'message_stop',
           JSON.stringify({
             type: 'message_stop',
-            'amazon-bedrock-invocationMetrics': {
-              inputTokenCount: inputTokens,
-              outputTokenCount: outputTokens,
-              invocationLatency: 0,
-              firstByteLatency: 0,
-            },
             usage: { input_tokens: inputTokens, output_tokens: outputTokens },
           }),
         ),

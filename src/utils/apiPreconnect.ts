@@ -20,11 +20,9 @@
  * Skipped when:
  * - proxy/mTLS/unix socket configured (preconnect would use wrong transport —
  *   the SDK passes a custom dispatcher/agent that doesn't share the global pool)
- * - Bedrock/Vertex/Foundry (different endpoints, different auth)
  */
 
 import { getOauthConfig } from '../constants/oauth.js'
-import { isEnvTruthy } from './envUtils.js'
 
 let fired = false
 
@@ -32,14 +30,6 @@ export function preconnectAnthropicApi(): void {
   if (fired) return
   fired = true
 
-  // Skip if using a cloud provider — different endpoint + auth
-  if (
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_BEDROCK) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_VERTEX) ||
-    isEnvTruthy(process.env.CLAUDE_CODE_USE_FOUNDRY)
-  ) {
-    return
-  }
   // Skip if proxy/mTLS/unix — SDK's custom dispatcher won't reuse this pool
   if (
     process.env.HTTPS_PROXY ||

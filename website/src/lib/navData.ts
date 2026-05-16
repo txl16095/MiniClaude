@@ -88,7 +88,7 @@ export const searchIndex: SearchEntry[] = [
     path: '/features/commands',
     section: '功能指南',
     content:
-      '/help 帮助 /clear 清空 /exit 退出 /config 配置 /model 切换模型 /theme 主题 /files 文件 /add-dir 添加目录 /mcp MCP /skills 技能 /tasks 任务 /hooks 钩子 /permissions 权限 /vim Vim模式 /compact 压缩 /review 审查 /stats 统计 /status 状态 /fast 快速模式 /effort 努力级别 /copy 复制 /doctor 诊断 /diff 差异 /init 初始化 /pr_comments PR评论 /plan 计划 /export 导出 /rename 重命名',
+      '/help 帮助 /clear 清空 /exit 退出 /config 配置 /model 切换模型 /provider 切换提供商 热切换 DeepSeek Kiro /theme 主题 /files 文件 /add-dir 添加目录 /mcp MCP /skills 技能 /tasks 任务 /hooks 钩子 /permissions 权限 /vim Vim模式 /compact 压缩 /review 审查 /stats 统计 /status 状态 /fast 快速模式 /effort 努力级别 /copy 复制 /doctor 诊断 /diff 差异 /init 初始化 /pr_comments PR评论 /plan 计划 /export 导出 /rename 重命名',
   },
   {
     title: '工具详解',

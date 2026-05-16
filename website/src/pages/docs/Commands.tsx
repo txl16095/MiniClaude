@@ -33,6 +33,7 @@ export default function Commands() {
           <tr><td><code>/config</code></td><td>打开配置文件</td><td><code>/config</code></td></tr>
           <tr><td><code>/model</code></td><td>切换 AI 模型</td><td><code>/model deepseek-v4-pro</code></td></tr>
           <tr><td><code>/theme</code></td><td>切换终端主题</td><td><code>/theme dark</code></td></tr>
+          <tr><td><code>/provider</code></td><td>切换模型提供商（支持热切换）</td><td><code>/provider kiro</code></td></tr>
           <tr><td><code>/permissions</code></td><td>管理权限规则</td><td><code>/permissions</code></td></tr>
           <tr><td><code>/hooks</code></td><td>管理生命周期钩子</td><td><code>/hooks</code></td></tr>
           <tr><td><code>/output-style</code></td><td>设置输出风格</td><td><code>/output-style concise</code></td></tr>

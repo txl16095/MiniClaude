@@ -45,19 +45,24 @@
 git clone https://github.com/txl16095/MiniClaude.git && cd MiniClaude
 bun install
 
-# 2. 配置 API Key
-cp .env.example .env   # 编辑填入 ANTHROPIC_API_KEY
+# 2. 配置 Provider（编辑 ~\.claude\settings.json，参考 settings.updated.json）
+#    settings.json 的 env 块自动加载，无需 .env 文件
 
 # 3. 构建运行
 bun run build && ./cli
 ```
 
-第三方模型支持（DeepSeek / OpenAI 等）：
+第三方模型和 Provider 切换：
 
 ```bash
-ANTHROPIC_BASE_URL=https://api.deepseek.com
-ANTHROPIC_MODEL=deepseek-v4-pro
+# 配置 Provider（settings.json）
+/provider              # 查看可用 Provider
+/provider kiro         # 切到 Kiro（全局，所有窗口生效）
+/provider deepseek     # 切到 DeepSeek
+/provider kiro --session  # 仅当前窗口切换，不影响其他 session
 ```
+
+支持 DeepSeek V4、Kiro Claude Sonnet 4.6 等多 Provider 热切换，无需重启。
 
 ---
 
@@ -65,7 +70,7 @@ ANTHROPIC_MODEL=deepseek-v4-pro
 
 | 类别 | 功能 |
 |---|---|
-| AI 能力 | 智能对话 · 代码生成 · 项目理解 · 多模型 |
+| AI 能力 | 智能对话 · 代码生成 · 项目理解 · 多模型 · 多 Provider 热切换 |
 | 文件工具 | Read / Write / Edit / Glob / Grep / HTML 报告 |
 | 开发集成 | Shell (Bash/PowerShell) · Git · LSP |
 | 扩展生态 | MCP 协议 · 插件系统 · 技能系统 · Chrome 扩展 |

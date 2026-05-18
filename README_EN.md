@@ -42,24 +42,73 @@ MiniClaude removes **92,000 lines** of cloud/telemetry/collaboration code from C
 
 ## Quick Start
 
+### Prerequisites
+
+- [Bun](https://bun.sh) >= 1.3.11
+- [Git](https://git-scm.com)
+
+### Build
+
 ```bash
-# 1. Clone & install
 git clone https://github.com/txl16095/MiniClaude.git && cd MiniClaude
 bun install
-
-# 2. Configure API key
-cp .env.example .env   # Edit and add ANTHROPIC_API_KEY
-
-# 3. Build & run
-bun run build && ./cli
+bun run build
 ```
 
-Third-party models (DeepSeek, OpenAI, etc.):
+### Configuration
+
+MiniClaude is fully compatible with Claude Code's config system. Use `~/.claude/settings.json` for centralized management.
+
+| Method | Path | Use Case |
+|--------|------|----------|
+| **settings.json (recommended)** | `~/.claude/settings.json` | Global config, multi-provider hot-switch |
+| **.env** | Project root `.env` | Dev/debug, temporary overrides |
+
+**Recommended: settings.json**
+
+Copy the template and edit:
 
 ```bash
-ANTHROPIC_BASE_URL=https://api.deepseek.com
-ANTHROPIC_MODEL=deepseek-v4-pro
+cp settings.example.json ~/.claude/settings.json
+# Linux/macOS: ~/.claude/settings.json
+# Windows:     C:\Users\<username>\.claude\settings.json
 ```
+
+Minimal config (DeepSeek example):
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-api-key-here",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]"
+  },
+  "model": "deepseek-v4-pro[1m]"
+}
+```
+
+See [settings.example.json](settings.example.json) for the full template with providers, MCP, plugins, permissions, and more.
+
+**Alternative: .env (dev mode)**
+
+```bash
+# Copy .env.example and add your key
+cp .env.example .env
+bun run dev
+# or Windows: start.bat
+```
+
+Windows users can double-click `start.bat` for dev mode.
+
+### Multi-Provider Hot Switch
+
+```bash
+/provider              # List available providers
+/provider deepseek     # Switch to DeepSeek (global, all windows)
+/provider kiro --session  # Current window only
+```
+
+Providers are configured in `settings.json` under the `providers` key. No restart needed.
 
 ---
 

@@ -40,29 +40,73 @@
 
 ## 快速开始
 
+### 前置要求
+
+- [Bun](https://bun.sh) >= 1.3.11
+- [Git](https://git-scm.com)
+
+### 安装构建
+
 ```bash
-# 1. 克隆并安装
 git clone https://github.com/txl16095/MiniClaude.git && cd MiniClaude
 bun install
-
-# 2. 配置 Provider（编辑 ~\.claude\settings.json，参考 settings.updated.json）
-#    settings.json 的 env 块自动加载，无需 .env 文件
-
-# 3. 构建运行
-bun run build && ./cli
+bun run build
 ```
 
-第三方模型和 Provider 切换：
+### 配置文件
+
+MiniClaude 完全兼容 Claude Code 的配置体系，主推在 `~/.claude/settings.json` 中集中管理。
+
+| 配置方式 | 路径 | 适用场景 |
+|----------|------|----------|
+| **settings.json（推荐）** | `~/.claude/settings.json` | 全局配置，多 Provider 热切换 |
+| **.env** | 项目根目录 `.env` | 开发调试，临时覆盖 |
+
+**推荐：settings.json**
+
+复制模板并编辑：
 
 ```bash
-# 配置 Provider（settings.json）
+cp settings.example.json ~/.claude/settings.json
+# Linux/macOS: ~/.claude/settings.json
+# Windows:     C:\Users\<用户名>\.claude\settings.json
+```
+
+最简配置（DeepSeek 为例）：
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-api-key-here",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]"
+  },
+  "model": "deepseek-v4-pro[1m]"
+}
+```
+
+详细模板见 [settings.example.json](settings.example.json)，包含多 Provider、MCP、插件、权限等完整配置。
+
+**备选：.env（开发模式）**
+
+```bash
+# 复制 .env.example 并填入密钥
+cp .env.example .env
+bun run dev
+# 或 Windows: start.bat
+```
+
+Windows 用户也可双击 `start.bat` 直接启动开发模式。
+
+### 多 Provider 热切换
+
+```bash
 /provider              # 查看可用 Provider
-/provider kiro         # 切到 Kiro（全局，所有窗口生效）
-/provider deepseek     # 切到 DeepSeek
+/provider deepseek     # 切到 DeepSeek（全局，所有窗口生效）
 /provider kiro --session  # 仅当前窗口切换，不影响其他 session
 ```
 
-支持 DeepSeek V4、Kiro Claude Sonnet 4.6 等多 Provider 热切换，无需重启。
+Provider 配置也写在 `settings.json` 的 `providers` 块中，切换无需重启。
 
 ---
 

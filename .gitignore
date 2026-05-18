@@ -43,6 +43,9 @@ bun-debug.log*
 *.bun-build
 .*.bun-build
 
+# 开发计划文档（内部使用）
+docs/
+
 # 本地工作记录
 deletion-log.md
 

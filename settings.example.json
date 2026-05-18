@@ -1,0 +1,111 @@
+{
+  "// MiniClaude 配置示例": "复制此文件到 ~/.claude/settings.json 并修改",
+  "// ~/.claude 路径": "Linux/macOS: ~/.claude/settings.json | Windows: C:\\Users\\<用户名>\\.claude\\settings.json",
+
+  "// ━━━━━━━━━━━ 环境变量与模型 ━━━━━━━━━━━": "",
+  "env": {
+    "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "sk-your-api-key-here",
+    "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]",
+    "API_TIMEOUT_MS": "3000000",
+    "DISABLE_TELEMETRY": "1",
+    "CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC": "1",
+    "ENABLE_PROMPT_CACHING_1H": "true"
+  },
+  "model": "deepseek-v4-pro[1m]",
+  "defaultModels": {
+    "sonnet": "deepseek-v4-flash",
+    "haiku": "deepseek-v4-flash",
+    "opus": "deepseek-v4-pro[1m]"
+  },
+  "effort": "high",
+
+  "// ━━━━━━━━━━━ 多 Provider 热切换 ━━━━━━━━━━━": "",
+  "providers": {
+    "deepseek": {
+      "env": {
+        "ANTHROPIC_BASE_URL": "https://api.deepseek.com/anthropic",
+        "ANTHROPIC_AUTH_TOKEN": "sk-your-deepseek-key",
+        "ANTHROPIC_MODEL": "deepseek-v4-pro[1m]"
+      },
+      "model": "deepseek-v4-pro[1m]",
+      "defaultModels": {
+        "sonnet": "deepseek-v4-flash",
+        "haiku": "deepseek-v4-flash",
+        "opus": "deepseek-v4-pro[1m]"
+      },
+      "description": "DeepSeek V4 - 便宜，纯文本"
+    },
+    "kiro": {
+      "env": {
+        "ANTHROPIC_BASE_URL": "http://127.0.0.1:8765",
+        "ANTHROPIC_AUTH_TOKEN": "sk-your-kiro-key",
+        "ANTHROPIC_MODEL": "claude-sonnet-4-6"
+      },
+      "model": "claude-sonnet-4-6",
+      "defaultModels": {
+        "sonnet": "claude-sonnet-4-6",
+        "haiku": "claude-sonnet-4-6",
+        "opus": "claude-sonnet-4-6"
+      },
+      "description": "Claude Sonnet 4.6 - 支持视觉"
+    }
+  },
+
+  "// ━━━━━━━━━━━ 权限 ━━━━━━━━━━━": "",
+  "permissions": {
+    "defaultMode": "default",
+    "_说明": "'default' 每次询问 | 'acceptEdits' 自动接受编辑 | 'bypassPermissions' 完全跳过确认"
+  },
+  "skipDangerousModePermissionPrompt": false,
+
+  "autoMode": {
+    "hard_deny": [
+      "Bash(rm -rf /)",
+      "Bash(git push --force main)"
+    ]
+  },
+
+  "// ━━━━━━━━━━━ MCP 服务器 ━━━━━━━━━━━": "",
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    }
+  },
+
+  "// ━━━━━━━━━━━ 插件市场 ━━━━━━━━━━━": "",
+  "enabledPlugins": {
+    "superpowers@agents-skills-plugins": true,
+    "code-review@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "agents-skills-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "EricGrill/agents-skills-plugins"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
+    }
+  },
+
+  "// ━━━━━━━━━━━ 界面 ━━━━━━━━━━━": "",
+  "language": "zh",
+  "theme": "dark",
+  "fastMode": false,
+  "alwaysThinkingEnabled": true,
+  "showTurnDuration": true,
+  "includeCoAuthoredBy": true,
+
+  "// 更多配置项": {
+    "cleanupPeriodDays": "会话保留天数，0 不保存",
+    "outputStyle": "输出风格",
+    "hooks": "生命周期钩子脚本",
+    "theme": "'dark' | 'light' | 'dark-daltonized'"
+  }
+}
